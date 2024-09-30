@@ -6,28 +6,68 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import json
 
 # Initialization
+file_path = "info.json"
+with open(file_path, "r") as file:
+    data = json.load(file)
+
 service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service)
 
 driver.get("https://docs.google.com/forms/d/e/1FAIpQLSefF1Xnit9Z66bDgIfDwyZGIN663USgB-EPQvfFX8uwQS9oPA/viewform")
 
 WebDriverWait(driver, 10).until(
-    EC.visibility_of_element_located((By.CSS_SELECTOR, "span.M7eMe")),
+    EC.visibility_of_element_located((By.CSS_SELECTOR, "div > span.M7eMe")),
     EC.visibility_of_element_located((By.CSS_SELECTOR, "input.whsOnd.zHQkBf"))
 )
 
-# Find the field names existing in the form
+# LOCAL JSON FILES
+json_field_lists = list(data.keys())
+print("JSON Available Fields: ", json_field_lists)
 
-raw_field_lists_ = driver.find_elements(By.CSS_SELECTOR, "span.M7eMe")
+# GFORM FIELD NAMES
+raw_field_lists_ = driver.find_elements(By.CSS_SELECTOR, "div > span.M7eMe")
 sanitized_field_lists = [field.text for field in raw_field_lists_]
-print(sanitized_field_lists)
+# print("GFORM Required Fields: ", sanitized_field_lists)  # Uncomment this later
 
-input_element = driver.find_element(By.CSS_SELECTOR, "input.whsOnd.zHQkBf")
+# GFORM FIELD ID + NAME
+# Description: Get the IDs of the fields when collecting their field names
+# [] is for list, {} is for dictionary/key-value pair
+sanitized_field_id_lists = []
+raw_field_id_lists = driver.find_elements(By.CSS_SELECTOR, "div > span.M7eMe")
+for field in raw_field_id_lists:
+    field_name = field.text
+    field_parent_div = field.find_element(By.XPATH, "..")  # Get the parent div of the span field
+    field_div_id = field_parent_div.get_attribute("id")  # Extract the id of the parent div
+    sanitized_field_id_lists.append({"field_name": field_name, "field_id": field_div_id})
+# Print out the collected data
+for entry in sanitized_field_id_lists:
+    print(f"Field Name: {entry['field_name']};  Div ID: {entry['field_id']}")
 
+
+
+# LOGGING & CHECKING PURPOSE: #Comment these if unused | Check if each JSON field value is contained within the corresponding GForm field value
+# answer_list = {}
+# for json_field in json_field_lists:
+#     found = False
+#     for gform_field in sanitized_field_lists:
+#         # Rmb to convert the gform to lowercase
+#         if json_field in gform_field.lower():    # If the word field is found inside the word gform_field; Iterate one json_field for every field in the gform_field_list
+#             print(f"JSON Field '{json_field}' found in GForm '{gform_field}'\n")
+#             answer_list[json_field] = data[json_field]
+#             found = True
+#             break
+#         if not found:
+#             print(f"The JSON field '{json_field}' is not found in the GForm at all.")
+# print("\nAnswer List: ", answer_list)
+
+
+# GFORM INPUT FIELD
+input_element = driver.find_element(By.CSS_SELECTOR, "input.whsOnd.zHQkBf") # Locate the input fields
 input_element.clear()   # Clear the input field (optional) 
-input_element.send_keys("I LOVES GYATTTT")
+# input_element.send_keys("I LOVES GYATTTT")
 
 # WebDriverWait(driver, 5).until(
 #     EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Tech With Tim"))
@@ -45,11 +85,20 @@ driver.quit()
 # ------------------------------------  NOTES SECTION   -----------------------------------------------------------------
 
 # 1. 'whsOnd zHQkBf' is the short text input field's class name
-# 2. CLASS_NAME only works with one classname, while CSS_SELECTOR handles multiple
-# 3. presence_of_element_located does not work here as it mainly checks if the elements exist in the DOM even if it is not visible. The element might be loaded later, so it detects no presence of that element
-# 4. visibility_of_element_located is preferrable as it interacts with the elements that is visible to the user
+# 2. 
+# 3. 
+# 4. 
 # 5. 'M7eMe' is the class name for the field name
-
+# 6. Now I collect the field names and store them in a list
+# 7. So there are field names and field inputs, they are linked by id
+# 8. The field names are under the <div id="X"> <span class="M7eMe"> Field Name </span> </div>
+# 
+# 
+# Working flow:
+# To enter the correct value into the correct fields, I need to know the field names,
+# This prolly can be done by finding the id of the field name and then ..... 
+# if field name exist in database, then check its id, then find the input field with the same id, then send the value to the field
+# This would need a for loop, to check each field name
 # -----------------------------------------------------------------------------------------------------------------------
 
 
@@ -77,5 +126,9 @@ driver.quit()
 # time class is commonly used to add delays in the scripting
 # Service is used to initialize an executable file to become a service
 # webdriver.Chrome to initialize a driver/controller to interact with Chrome using the service(chromedriver.exe) defined earlier
+# CLASS_NAME only works with one classname, while CSS_SELECTOR handles multiple classnames
+# presence_of_element_located does not work here as it mainly checks if the elements exist in the DOM even if it is not visible. The element might be loaded later, so it detects no presence of that element
+# visibility_of_element_located is preferrable as it interacts with the elements that is visible to the user 
+#  
 
 # -----------------------------------------------------------------------------------------------------------------------
