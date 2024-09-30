@@ -16,9 +16,9 @@ driver = webdriver.Chrome(service=service)
 driver.get("https://www.google.com/")
 
 # Wait up to 5s for the page to load, until it can retrieve the HTML element
-# WebDriverWait(driver, 5).until(
-#     EC.presence_of_element_located((By.CLASS_NAME, "gLFyf"))
-# )
+WebDriverWait(driver, 5).until(
+    EC.presence_of_element_located((By.CLASS_NAME, "gLFyf"))
+)
 
 # Get the HTML element using its class name
 input_element = driver.find_element(By.CLASS_NAME, "gLFyf")
@@ -26,7 +26,9 @@ input_element.clear() # Clear the input element
 # Enter the key or value into the HTML element
 input_element.send_keys("tech with tim" + Keys.ENTER)
 
-
+WebDriverWait(driver, 5).until(
+    EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Tech With Tim"))
+)
 
 # LINK_TEXT: is
 # PARTIAL_LINK_TEXT: contains
