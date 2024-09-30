@@ -11,7 +11,7 @@ import json
 # Initialization
 file_path = "info.json"
 with open(file_path, "r") as file:
-    data = json.load(file)
+    json.data = json.load(file)
 
 service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service)
@@ -24,28 +24,39 @@ WebDriverWait(driver, 10).until(
 )
 
 # LOCAL JSON FILES
-json_field_lists = list(data.keys())
-print("JSON Available Fields: ", json_field_lists)
+json_field_lists = list(json.data.keys())
+# print("JSON Available Fields: ", json_field_lists) 
 
 # GFORM FIELD NAMES
 raw_field_lists_ = driver.find_elements(By.CSS_SELECTOR, "div > span.M7eMe")
-sanitized_field_lists = [field.text for field in raw_field_lists_]
-# print("GFORM Required Fields: ", sanitized_field_lists)  # Uncomment this later
+gform_field_lists = [field.text for field in raw_field_lists_]
+# print("GFORM Required Fields: ", gform_field_lists)  # Uncomment this later
 
-# GFORM FIELD ID + NAME
+# GFORM FIELD ID + NAME (CORE FUNCTION)
 # Description: Get the IDs of the fields when collecting their field names
 # [] is for list, {} is for dictionary/key-value pair
-sanitized_field_id_lists = []
+gform_field_id_lists = []
 raw_field_id_lists = driver.find_elements(By.CSS_SELECTOR, "div > span.M7eMe")
 for field in raw_field_id_lists:
     field_name = field.text
     field_parent_div = field.find_element(By.XPATH, "..")  # Get the parent div of the span field
     field_div_id = field_parent_div.get_attribute("id")  # Extract the id of the parent div
-    sanitized_field_id_lists.append({"field_name": field_name, "field_id": field_div_id})
+    gform_field_id_lists.append({"field_name": field_name, "field_id": field_div_id, "field_value": ""})
 # Print out the collected data
-for entry in sanitized_field_id_lists:
-    print(f"Field Name: {entry['field_name']};  Div ID: {entry['field_id']}")
+# for entry in gform_field_id_lists:
+#     print(f"Field Name: {entry['field_name']};      Div ID: {entry['field_id']};    Field Value: {entry['field_value']}")
 
+
+# Generate the answer list by assigning the field_value
+generated_answer_list = gform_field_id_lists
+for answer_entry in generated_answer_list:
+    for json_key in json.data.keys():
+        if json_key.lower() in answer_entry["field_name"].lower():
+            answer_entry["field_value"] = json.data[json_key]
+            break   # Break the loop if the key is found & go to the next answer_entry/field_value
+
+print("\nTHIS IS THE RESPONSE ANSWER LIST!!!: \n")
+print(json.dumps(generated_answer_list, indent=4)) # 'dumps' to make it more readable
 
 
 # LOGGING & CHECKING PURPOSE: #Comment these if unused | Check if each JSON field value is contained within the corresponding GForm field value
@@ -64,10 +75,16 @@ for entry in sanitized_field_id_lists:
 # print("\nAnswer List: ", answer_list)
 
 
-# GFORM INPUT FIELD
-input_element = driver.find_element(By.CSS_SELECTOR, "input.whsOnd.zHQkBf") # Locate the input fields
-input_element.clear()   # Clear the input field (optional) 
+# # REFERENCE
+# input_element = driver.find_element(By.CSS_SELECTOR, "input.whsOnd.zHQkBf") # Locate the input field
+# input_element.clear()
 # input_element.send_keys("I LOVES GYATTTT")
+
+# # GFORM FIELD INPUT ACTION
+# input_elements = driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='text']")
+# for question in input_elements:
+#     question.clear()
+    
 
 # WebDriverWait(driver, 5).until(
 #     EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Tech With Tim"))
