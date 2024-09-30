@@ -32,9 +32,9 @@ raw_field_lists_ = driver.find_elements(By.CSS_SELECTOR, "div > span.M7eMe")
 gform_field_lists = [field.text for field in raw_field_lists_]
 # print("GFORM Required Fields: ", gform_field_lists)  # Uncomment this later
 
-# GFORM FIELD ID + NAME (CORE FUNCTION)
-# Description: Get the IDs of the fields when collecting their field names
-# [] is for list, {} is for dictionary/key-value pair
+# SANITIZED FIELD LISTS
+# GFORM RESPONSE CORE FUNCTIONS
+# PART 1: Collect the field names and their corresponding div id
 gform_field_id_lists = []
 raw_field_id_lists = driver.find_elements(By.CSS_SELECTOR, "div > span.M7eMe")
 for field in raw_field_id_lists:
@@ -47,7 +47,7 @@ for field in raw_field_id_lists:
 #     print(f"Field Name: {entry['field_name']};      Div ID: {entry['field_id']};    Field Value: {entry['field_value']}")
 
 
-# Generate the answer list by assigning the field_value
+# PART 2: Assign the field value to the corresponding entry based on the field name
 generated_answer_list = gform_field_id_lists
 for answer_entry in generated_answer_list:
     for json_key in json.data.keys():
@@ -102,7 +102,7 @@ driver.quit()
 # ------------------------------------  NOTES SECTION   -----------------------------------------------------------------
 
 # 1. 'whsOnd zHQkBf' is the short text input field's class name
-# 2. 
+# 2. [] is for list, {} is for dictionary/key-value pair
 # 3. 
 # 4. 
 # 5. 'M7eMe' is the class name for the field name
