@@ -112,7 +112,7 @@ submit_button.click()
 # link = driver.find_element(By.PARTIAL_LINK_TEXT, "Tech With Tim")
 # link.click()
 
-time.sleep(10)
+time.sleep(5)
 
 driver.quit()
 
