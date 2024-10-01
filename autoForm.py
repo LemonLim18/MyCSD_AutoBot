@@ -80,10 +80,28 @@ print(json.dumps(generated_answer_list, indent=4)) # 'dumps' to make it more rea
 # input_element.clear()
 # input_element.send_keys("I LOVES GYATTTT")
 
-# # GFORM FIELD INPUT ACTION
-# input_elements = driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='text']")
-# for question in input_elements:
-#     question.clear()
+# # GFORM FIELD INPUT KEY-IN ACTION
+for entry in generated_answer_list:
+    # print("1.", entry['field_id'])
+    answer_id = entry['field_id']
+    answer_value = entry['field_value']
+    # Get the corresponding question based on its id
+    question = driver.find_element(By.CSS_SELECTOR, f"input.whsOnd.zHQkBf[type='text'][aria-labelledby='{answer_id}']") #f-string allows the variables to be embedded into the strings and evaluated.
+    question.clear()
+    question.send_keys(answer_value) #Key-in the answer value
+
+time.sleep(1.5)
+
+# SUBMIT THE FORM
+submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
+submit_button.click()
+
+# question_lists = driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='text']")
+# # print("Log input_elements: ", input_elements)
+# for question_blank in question_lists:
+#     question_blank.clear()
+#     if question_blank
+    
     
 
 # WebDriverWait(driver, 5).until(
