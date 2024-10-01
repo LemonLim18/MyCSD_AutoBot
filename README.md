@@ -15,9 +15,9 @@ To use **MyCSD_Autofiller**, you need the following installed on your system:
 - **Google Chrome**
 - **ChromeDriver (Make sure the ChromeDriver version matches your Chrome browser version)**
 - **Python libraries:**
- - `selenium`
- - `json`
- - `time`
+  - `selenium`
+  - `json`
+  - `time`
 
 **Install required Python packages using:**
 ```python
@@ -126,4 +126,4 @@ Include options for user interaction, such as reviewing the form before submissi
 Feel free to submit issues or pull requests if you find any bugs or want to contribute to the project.
 
 License
-This project is open-source and available under the MIT License.
+This project is open-source and available under the **MIT License**.
