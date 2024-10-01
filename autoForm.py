@@ -100,7 +100,6 @@ for entry in generated_answer_list:
         print(f"No text input found for answer_id: {answer_id}. Skipping...")
         continue
 
-
 # PART 4: Select the top rate or rate of 5
 # Linear Scale
 
@@ -110,7 +109,6 @@ for entry in generated_answer_list:
 # Automatically click the right radio button based on the answer
 # Radios: contains multiple radio type questions
 # Radio Options: contains the radio options for each radio question
-'''
 radios = driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']")
 for radio in radios:
     # Get its question name
@@ -119,9 +117,9 @@ for radio in radios:
     radio_options = radio.find_elements(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.ajBQVb span")
     
     # LOGGING: Question and Options
-    # print("Radio Question: ", radio_question) 
-    # for radio_option in radio_options:
-    #     print("Radio Option: ", radio_option.text)
+    print("Radio Question: ", radio_question) 
+    for radio_option in radio_options:
+        print("Radio Option: ", radio_option.text)
     
     # Check which answer's field name is this radio question
     for entry in generated_answer_list: # the answer list use the gform question as field_name, this is to bind it with value
@@ -135,19 +133,20 @@ for radio in radios:
         # Check if the answer value is a list or not
         if type(answer_value) is not list:   # if not a list but a value, just check for the option
             if answer_value.lower() in radio_option.text.lower():
+                print("Found the matching radio option: ", answer_value)
                 radio_option.click()
                 found_syn = True
                 break
         else:  # if it is a list, iterate through the list to find the matching or synonym radio option
             for answer_value_synonym in answer_value: 
                 if answer_value_synonym.lower() in radio_option.text.lower():
+                    print("Found the matching radio option: ", answer_value_synonym)
                     radio_option.click()
                     found_syn = True
                     break
     
     if not found_syn:
         print("There is no matching radio option for these answer values.")
-'''
     
 
 # Checkbox
