@@ -75,12 +75,7 @@ print(json.dumps(generated_answer_list, indent=4)) # 'dumps' to make it more rea
 # print("\nAnswer List: ", answer_list)
 
 
-# # REFERENCE
-# input_element = driver.find_element(By.CSS_SELECTOR, "input.whsOnd.zHQkBf") # Locate the input field
-# input_element.clear()
-# input_element.send_keys("I LOVES GYATTTT")
-
-# # GFORM FIELD INPUT KEY-IN ACTION
+# PART 3: Automatically fill the form fields
 for entry in generated_answer_list:
     # print("1.", entry['field_id'])
     answer_id = entry['field_id']
@@ -92,21 +87,11 @@ for entry in generated_answer_list:
 
 time.sleep(1.5)
 
-# SUBMIT THE FORM
+# PART 4: Submit the form
 submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
 submit_button.click()
 
-# question_lists = driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='text']")
-# # print("Log input_elements: ", input_elements)
-# for question_blank in question_lists:
-#     question_blank.clear()
-#     if question_blank
-    
-    
 
-# WebDriverWait(driver, 5).until(
-#     EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Tech With Tim"))
-# )
 
 
 # link = driver.find_element(By.PARTIAL_LINK_TEXT, "Tech With Tim")
