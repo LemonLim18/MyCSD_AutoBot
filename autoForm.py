@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException   # For handling the exceptions for selenium
 import time
 import json
 
@@ -79,20 +80,37 @@ print(json.dumps(generated_answer_list, indent=4)) # 'dumps' to make it more rea
 
 # PART 3: Automatically fill the form fields
 # This might not work with the field that is not type of text (e.g. radio button, checkbox, linear scale, date)
-# for entry in generated_answer_list:
-#     # print("1.", entry['field_id'])
-#     answer_id = entry['field_id']
-#     answer_value = entry['field_value']
-#     # Get the corresponding question based on its id
-#     question = driver.find_element(By.CSS_SELECTOR, f"input.whsOnd.zHQkBf[type='text'][aria-labelledby='{answer_id}']") #f-string allows the variables to be embedded into the strings and evaluated.
-#     question.clear()
-#     question.send_keys(answer_value) #Key-in the answer value
+for entry in generated_answer_list:
+    # print("1.", entry['field_id'])
+    answer_id = entry['field_id']
+    answer_value = entry['field_value']
+    # CONDITION: Only the text-type input field would be set aria-labelledby value
+    # as there is no input text field for the radio button, checkbox, linear scale, date, so it's meaningless
+    # and will cause error cause there is no input text field with the id of the radio button field, checkbox, linear scale, date.
+    # Find the corresponding question blank based on its id
+    try:
+        question_blank = driver.find_element(By.CSS_SELECTOR, f"input.whsOnd.zHQkBf[type='text'][aria-labelledby='{answer_id}']") #f-string allows the variables to be embedded into the strings and evaluated.
 
+        # Only process if the input field if found (meaning it's a text-type input field)
+        if question_blank: 
+            question_blank.clear()
+            question_blank.send_keys(answer_value) #Key-in the answer value
+    except NoSuchElementException:  # Handle the exception caused by missing element desired
+        # Skip the entry if there is no text input field with the given answer_id (meaning it could be radio, checkbox, linear scale, date)
+        print(f"No text input found for answer_id: {answer_id}. Skipping...")
+        continue
+
+
+# PART 4: Select the top rate or rate of 5
 # Linear Scale
 
+
+# PART 5: Select the correct radio option from the list that carries the same meaning or is the synonym of the answer from the schema
 # Radio (Race, University, Religion)
 # Automatically click the right radio button based on the answer
-# The following specifies the list of radio questions
+# Radios: contains multiple radio type questions
+# Radio Options: contains the radio options for each radio question
+'''
 radios = driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']")
 for radio in radios:
     # Get its question name
@@ -129,12 +147,7 @@ for radio in radios:
     
     if not found_syn:
         print("There is no matching radio option for these answer values.")
-
-
-# for entry in generated_answer_list:
-#     # For radio, cannot use the radio id, as the answers have multiple ids, but the question has only one id
-#     answer_value = entry['field_value'] # use this as a filter to select the right radio button
-#     print("Answer Value: ", answer_value)
+'''
     
 
 # Checkbox
@@ -165,7 +178,7 @@ driver.quit()
 
 # 1. 'whsOnd zHQkBf' is the short text input field's class name
 # 2. [] is for list, {} is for dictionary/key-value pair
-# 3. 
+# 3. For radio, cannot use the radio id, as the answers have multiple ids, but the question has only one id
 # 4. 
 # 5. 'M7eMe' is the class name for the field name
 # 6. Now I collect the field names and store them in a list
