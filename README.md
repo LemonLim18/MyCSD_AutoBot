@@ -14,37 +14,37 @@ To use **MyCSD_Autofiller**, you need the following installed on your system:
 - **Python 3.x**
 - **Google Chrome**
 - **ChromeDriver (Make sure the ChromeDriver version matches your Chrome browser version)**
--**Python libraries:**
- -`selenium`
- -`json`
- -`time`
+- **Python libraries:**
+ - `selenium`
+ - `json`
+ - `time`
 
 **Install required Python packages using:**
 ```python
 pip install selenium
 ```
 
-Setup and Configuration
-1. Clone the Repository
+# Setup and Configuration
+1. ### Clone the Repository
 Clone this repository to your local machine:
 
-bash
-Copy code
+```python
 git clone https://github.com/LemonLim18/MyCSD_Autofiller.git
-2. Setup ChromeDriver
+```
+2. ### Setup ChromeDriver
 Download the appropriate version of ChromeDriver and place it in the project directory or set it in your PATH.
 
 In the Python script, update the ChromeDriver path in the code:
 
-python
-Copy code
+```python
 service = Service(executable_path="path_to_your_chromedriver")
 driver = webdriver.Chrome(service=service)
-3. JSON Data
+```
+
+3. ### JSON Data
 Ensure the local JSON file follows this structure to map the required form fields correctly:
 
-json
-Copy code
+```python
 {
     "name": "Lim Miin Ning",
     "ic": "030118020451",
@@ -53,19 +53,21 @@ Copy code
     "email": "limmiinning@gmail.com",
     "usm_email": "limmiinning@student.usm.my"
 }
-4. Script Overview
+```
+
+4. ### Script Overview
 The main script performs the following actions:
 
-Load JSON Data: Loads the input data from a local JSON file.
-Open Google Form: Opens the specified Google Form using Selenium.
-Match Fields: Finds form fields using their CSS Selectors (e.g., field names and IDs).
-Fill Form Fields: Automatically fills each form field with the corresponding value from the JSON data.
-Submit the Form (Optional): Optionally, submit the form if required.
-Sample Code
+1. **Load JSON Data**: Loads the input data from a local JSON file.
+2. **Open Google Form**: Opens the specified Google Form using Selenium.
+3. **Match Fields**: Finds form fields using their CSS Selectors (e.g., field names and IDs).
+4. **Fill Form Fields**: Automatically fills each form field with the corresponding value from the JSON data.
+5. **Submit the Form (Optional)**: Optionally, submit the form if required.
+
+## Sample Code
 Here’s a brief look at the automation process in the script:
 
-python
-Copy code
+```python
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -94,27 +96,33 @@ for field in data.keys():
 # driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
 driver.quit()
-5. Run the Script
+```
+
+## Run the Script
 Run the Python script from your terminal:
 
-bash
-Copy code
+```python
 python autoForm.py
+```
+
 The script will automatically open the form, locate the fields by their names and IDs, and fill them with the data from the JSON file.
 
-How It Works
-Field Name Matching: The script retrieves field names from the form using CSS Selectors. It matches these fields with the corresponding keys in the JSON data.
-Error Handling: If a required field is missing in the JSON file or the form contains unexpected fields, the script will handle it gracefully.
-Flexible Field Matching: The script can handle partial form entries (e.g., if some fields are already pre-filled).
-Limitations
-The tool currently supports only text input fields.
-It assumes that the JSON file will contain all the necessary data for the Google Form fields.
-If the Google Form layout changes, the CSS Selectors may need to be updated.
-Future Improvements
+## How It Works
+- **Field Name Matching**: The script retrieves field names from the form using CSS Selectors. It matches these fields with the corresponding keys in the JSON data.
+- **Error Handling**: If a required field is missing in the JSON file or the form contains unexpected fields, the script will handle it gracefully.
+- **Flexible Field Matching**: The script can handle partial form entries (e.g., if some fields are already pre-filled).
+ 
+## Limitations
+- The tool currently supports only **text input fields**.
+- It assumes that the JSON file will contain all the necessary data for the Google Form fields.
+- If the Google Form layout changes, the **CSS Selectors** may need to be updated.
+
+## Future Improvements
 Add support for other input types (e.g., radio buttons, dropdowns).
 Add a mechanism to dynamically handle form changes.
 Include options for user interaction, such as reviewing the form before submission.
-Contributing
+
+## Contributing
 Feel free to submit issues or pull requests if you find any bugs or want to contribute to the project.
 
 License
