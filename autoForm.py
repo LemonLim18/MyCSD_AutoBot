@@ -16,7 +16,9 @@ with open(file_path, "r") as file:
 service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service)
 
-driver.get("https://docs.google.com/forms/d/e/1FAIpQLSefF1Xnit9Z66bDgIfDwyZGIN663USgB-EPQvfFX8uwQS9oPA/viewform")
+# Simple Single Page: https://docs.google.com/forms/d/e/1FAIpQLSefF1Xnit9Z66bDgIfDwyZGIN663USgB-EPQvfFX8uwQS9oPA/viewform
+# Advance Single Page: https://docs.google.com/forms/d/e/1FAIpQLSd44GLLFck_5oG_kUP2KYi2WGbgPxnK9kZpngEUV-bRi3OvjQ/viewform?usp=sf_link
+driver.get("https://docs.google.com/forms/d/e/1FAIpQLSd44GLLFck_5oG_kUP2KYi2WGbgPxnK9kZpngEUV-bRi3OvjQ/viewform?usp=sf_link")
 
 WebDriverWait(driver, 10).until(
     EC.visibility_of_element_located((By.CSS_SELECTOR, "div > span.M7eMe")),
@@ -34,7 +36,7 @@ gform_field_lists = [field.text for field in raw_field_lists_]
 
 # SANITIZED FIELD LISTS
 # GFORM RESPONSE CORE FUNCTIONS
-# PART 1: Collect the field names and their corresponding div id
+# PART 1: Collect the gform field names/questions and their corresponding div id
 gform_field_id_lists = []
 raw_field_id_lists = driver.find_elements(By.CSS_SELECTOR, "div > span.M7eMe")
 for field in raw_field_id_lists:
@@ -76,20 +78,77 @@ print(json.dumps(generated_answer_list, indent=4)) # 'dumps' to make it more rea
 
 
 # PART 3: Automatically fill the form fields
-for entry in generated_answer_list:
-    # print("1.", entry['field_id'])
-    answer_id = entry['field_id']
-    answer_value = entry['field_value']
-    # Get the corresponding question based on its id
-    question = driver.find_element(By.CSS_SELECTOR, f"input.whsOnd.zHQkBf[type='text'][aria-labelledby='{answer_id}']") #f-string allows the variables to be embedded into the strings and evaluated.
-    question.clear()
-    question.send_keys(answer_value) #Key-in the answer value
+# This might not work with the field that is not type of text (e.g. radio button, checkbox, linear scale, date)
+# for entry in generated_answer_list:
+#     # print("1.", entry['field_id'])
+#     answer_id = entry['field_id']
+#     answer_value = entry['field_value']
+#     # Get the corresponding question based on its id
+#     question = driver.find_element(By.CSS_SELECTOR, f"input.whsOnd.zHQkBf[type='text'][aria-labelledby='{answer_id}']") #f-string allows the variables to be embedded into the strings and evaluated.
+#     question.clear()
+#     question.send_keys(answer_value) #Key-in the answer value
+
+# Linear Scale
+
+# Radio (Race, University, Religion)
+# Automatically click the right radio button based on the answer
+# The following specifies the list of radio questions
+radios = driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']")
+for radio in radios:
+    # Get its question name
+    radio_question = radio.find_element(By.XPATH, "../../..").find_element(By.CSS_SELECTOR, "div.M4DNQ span.M7eMe").text
+    # Get its radio button/option list
+    radio_options = radio.find_elements(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.ajBQVb span")
+    
+    # LOGGING: Question and Options
+    # print("Radio Question: ", radio_question) 
+    # for radio_option in radio_options:
+    #     print("Radio Option: ", radio_option.text)
+    
+    # Check which answer's field name is this radio question
+    for entry in generated_answer_list: # the answer list use the gform question as field_name, this is to bind it with value
+        if radio_question.lower() == entry['field_name'].lower():
+            # if found the question, then extract answer from the list as selection reference
+            answer_value = entry['field_value'] # E.g. "Chinese/Cina"
+
+    # Click the right radio button based on the answer
+    found_syn = False
+    for radio_option in radio_options: # Options: Chinese / Cina  or  Melayu / Malay  |   Answer: Chinese or Malay
+        # Check if the answer value is a list or not
+        if type(answer_value) is not list:   # if not a list but a value, just check for the option
+            if answer_value.lower() in radio_option.text.lower():
+                radio_option.click()
+                found_syn = True
+                break
+        else:  # if it is a list, iterate through the list to find the matching or synonym radio option
+            for answer_value_synonym in answer_value: 
+                if answer_value_synonym.lower() in radio_option.text.lower():
+                    radio_option.click()
+                    found_syn = True
+                    break
+    
+    if not found_syn:
+        print("There is no matching radio option for these answer values.")
+
+
+# for entry in generated_answer_list:
+#     # For radio, cannot use the radio id, as the answers have multiple ids, but the question has only one id
+#     answer_value = entry['field_value'] # use this as a filter to select the right radio button
+#     print("Answer Value: ", answer_value)
+    
+
+# Checkbox
+
+# Dropdown
+
+# Date
+
 
 time.sleep(1.5)
 
 # PART 4: Submit the form
-submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
-submit_button.click()
+# submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
+# submit_button.click()
 
 
 

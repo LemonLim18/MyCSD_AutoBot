@@ -4,5 +4,9 @@
     "tel": "011-15411073",
     "matric": "163133",
     "email": "limmiinning@gmail.com",
-    "usm_email": "limmiinning@student.usm.my"
+    "usm_email": "limmiinning@student.usm.my",
+    "university": ["University of Science Malaysia", "USM", "Universiti Sains Malaysia"],
+    "school": ["School of Computer Sciences", "Computer Sciences", "Sains Komputer"],
+    "race": ["Chinese", "Cina"],
+    "religion": "Buddha"
 }
