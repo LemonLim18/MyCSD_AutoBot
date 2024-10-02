@@ -6,7 +6,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException   # For handling the exceptions for selenium
-from math import floor
+import re
 import math
 import time
 import random
@@ -54,10 +54,14 @@ for field in raw_field_id_lists:
 
 
 # PART 2: Assign the field value to the corresponding entry based on the field name
+usm_email_pattern = re.compile(r'(usm|university).*email', re.IGNORECASE) # Match usm or university and email
+
 generated_answer_list = gform_field_id_lists
 for answer_entry in generated_answer_list:
     for json_key in json.data.keys():
-        if json_key.lower() in answer_entry["field_name"].lower():
+        if usm_email_pattern.search(answer_entry["field_name"]):    # if the question contains these regex
+            answer_entry["field_value"] = json.data['usm_email']    # assign the answer schema with usm email
+        elif json_key.lower() in answer_entry["field_name"].lower():
             answer_entry["field_value"] = json.data[json_key]
             break   # Break the loop if the key is found & go to the next answer_entry/field_value
 
@@ -312,8 +316,8 @@ for entry in generated_answer_list:
 time.sleep(1.2)
 
 # LAST PART: Submit the form
-submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
-submit_button.click()
+# submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
+# submit_button.click()
 
 
 
@@ -321,7 +325,7 @@ submit_button.click()
 # link = driver.find_element(By.PARTIAL_LINK_TEXT, "Tech With Tim")
 # link.click()
 
-time.sleep(3)
+time.sleep(10)
 
 driver.quit()
 
