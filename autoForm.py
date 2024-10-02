@@ -225,7 +225,7 @@ for dropdown_expand in dropdown_expands:
 
     # time.sleep(1.5) # Give initial start delay after the answer value is found
     dropdown_expand.click() # Click the dropdown to expand
-    time.sleep(1.2)    # Wait for the dropdown options to appear before making a selection
+    time.sleep(1.1)    # Wait for the dropdown options to appear before making a selection
     
     dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
 
@@ -254,7 +254,7 @@ for dropdown_expand in dropdown_expands:
         random_option_picked.click()
 
 
-time.sleep(1.2)
+time.sleep(0.5)
 
 # Now locate all the dropdown options visible after expanding
 # dropdown_options = driver.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
@@ -275,11 +275,38 @@ time.sleep(1.2)
 # Date
 date_questions = driver.find_elements(By.CSS_SELECTOR, "div[role='textbox'] input.whsOnd.zHQkBf")
 date_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='date']")
-for date_input in date_inputs:
-    date_input.clear()
-    current_date = time.strftime("%d-%m-%Y")
-    print("Current Date: ", current_date)
-    date_input.send_keys(current_date)
+
+for entry in generated_answer_list:
+    # print("1.", entry['field_id'])
+    answer_date_id = entry['field_id']
+    answer_date_value = entry['field_value']
+
+
+# for date_input in date_inputs:
+    
+#     date_input.clear()
+
+#     current_date = time.strftime("%d-%m-%Y")
+#     print("Current Date: ", current_date)
+#     date_input.send_keys(current_date)
+
+    try:
+        question_date_blank = driver.find_element(By.CSS_SELECTOR, f"div[aria-labelledby='{answer_date_id}'] input.whsOnd.zHQkBf[type='date']") #f-string allows the variables to be embedded into the strings and evaluated.
+
+        # Only process if the input field if found (meaning it's a date-type input field)
+        if question_date_blank: 
+            question_date_blank.clear()
+            if answer_date_value:
+                question_date_blank.send_keys(answer_date_value)
+                print("This is the birthdate: ", answer_date_value)
+            else:
+                current_date = time.strftime("%d-%m-%Y")
+                question_date_blank.send_keys(current_date) #Key-in the current date as substitute
+                print("This is the current date: ", current_date)
+    except NoSuchElementException: 
+        # Skip the entry if there is no text input field with the given answer_id (meaning it could be radio, checkbox, linear scale, date)
+        print(f"No date input found for answer_id: {answer_date_id}. Skipping...")
+        continue
 
 
 time.sleep(1.2)
