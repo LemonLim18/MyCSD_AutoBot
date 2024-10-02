@@ -199,7 +199,7 @@ for checkboxes_question in checkboxes_questions:
 
 # Task: Get the dropdown question first
 # Wait until the list box exists first, before we can interact and assign it to the dropdown_expands
-WebDriverWait(driver, 5).until(
+WebDriverWait(driver, 3).until(
     EC.visibility_of_element_located((By.CSS_SELECTOR, "div[role='listbox']"))
 )
 dropdown_expands = driver.find_elements(By.CSS_SELECTOR, "div[role='listbox']")
@@ -225,12 +225,12 @@ for dropdown_expand in dropdown_expands:
 
     # time.sleep(1.5) # Give initial start delay after the answer value is found
     dropdown_expand.click() # Click the dropdown to expand
-    time.sleep(1.5)    # Wait for the dropdown options to appear before making a selection
+    time.sleep(1.2)    # Wait for the dropdown options to appear before making a selection
     
     dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
 
     if dropdown_answer_found:   # if the dropdown answer found in the list, then select the dropdown option
-        dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
+        # dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
         if type(dropdown_answer_value) is list:     # if the answer is a list, iterate through the list to find the matching or synonym dropdown option
             for dropdown_option in dropdown_options:
                 for dropdown_answer_synonym in dropdown_answer_value:       # Iterate through the list of answer synonyms
@@ -247,16 +247,14 @@ for dropdown_expand in dropdown_expands:
 
     else:   # if the dropdown answer not found in the list, then randomly select one
         print("Randomly select option for the question: ", dropdown_question)
-        dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")      # This exists as a list, can use index to locate an element
+        # dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")      # This exists as a list, can use index to locate an element
         random_option_index = random.randint(1, len(dropdown_options) - 1)      # Cannot start for it becuz the default first option is 'Choose' value
         random_option_picked = dropdown_options[random_option_index]
         print("Randomly selected option: ", random_option_picked.text, "at index: ", random_option_index)
         random_option_picked.click()
 
 
-
-
-# time.sleep(0.7)
+time.sleep(1.2)
 
 # Now locate all the dropdown options visible after expanding
 # dropdown_options = driver.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
@@ -272,10 +270,19 @@ for dropdown_expand in dropdown_expands:
 #         break
 
 
+
+# PART 7: Enter the Date 
 # Date
+date_questions = driver.find_elements(By.CSS_SELECTOR, "div[role='textbox'] input.whsOnd.zHQkBf")
+date_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='date']")
+for date_input in date_inputs:
+    date_input.clear()
+    current_date = time.strftime("%d-%m-%Y")
+    print("Current Date: ", current_date)
+    date_input.send_keys(current_date)
 
 
-time.sleep(1.5)
+time.sleep(1.2)
 
 # PART 4: Submit the form
 # submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
