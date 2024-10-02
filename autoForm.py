@@ -6,6 +6,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException   # For handling the exceptions for selenium
+from math import floor
+import math
 import time
 import random
 import json
@@ -176,7 +178,7 @@ for checkboxes_question in checkboxes_questions:
 
     # Generate a random index within range of available options
     if options_count > 0:
-        num_to_select = random.randint(1, options_count)     # Randomly select 1 to all the options
+        num_to_select = random.randint(math.ceil(options_count * 1/4), round(options_count * 3/5))     # Randomly select 1 to all the options
         print(f"Number of options to select: {num_to_select}")
  
         random_option_index = random.randint(0, options_count - 1)
@@ -196,6 +198,10 @@ for checkboxes_question in checkboxes_questions:
 # There will be 2 methods: 1. Find the answer based on the json data, 2. If not found, then randomly select one
 
 # Task: Get the dropdown question first
+# Wait until the list box exists first, before we can interact and assign it to the dropdown_expands
+WebDriverWait(driver, 5).until(
+    EC.visibility_of_element_located((By.CSS_SELECTOR, "div[role='listbox']"))
+)
 dropdown_expands = driver.find_elements(By.CSS_SELECTOR, "div[role='listbox']")
 dropdown_answer_value = None
 dropdown_answer_found = False
@@ -216,10 +222,13 @@ for dropdown_expand in dropdown_expands:
             else:
                 print("The answer for this field name is empty")
             break
-    
+
+    # time.sleep(1.5) # Give initial start delay after the answer value is found
     dropdown_expand.click() # Click the dropdown to expand
     time.sleep(1.5)    # Wait for the dropdown options to appear before making a selection
     
+    dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
+
     if dropdown_answer_found:   # if the dropdown answer found in the list, then select the dropdown option
         dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
         if type(dropdown_answer_value) is list:     # if the answer is a list, iterate through the list to find the matching or synonym dropdown option
@@ -239,7 +248,7 @@ for dropdown_expand in dropdown_expands:
     else:   # if the dropdown answer not found in the list, then randomly select one
         print("Randomly select option for the question: ", dropdown_question)
         dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")      # This exists as a list, can use index to locate an element
-        random_option_index = random.randint(0, len(dropdown_options) - 1)
+        random_option_index = random.randint(1, len(dropdown_options) - 1)      # Cannot start for it becuz the default first option is 'Choose' value
         random_option_picked = dropdown_options[random_option_index]
         print("Randomly selected option: ", random_option_picked.text, "at index: ", random_option_index)
         random_option_picked.click()
