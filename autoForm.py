@@ -218,7 +218,7 @@ for dropdown_expand in dropdown_expands:
             break
     
     dropdown_expand.click() # Click the dropdown to expand
-    time.sleep(1.2)    # Wait for the dropdown options to appear before making a selection
+    time.sleep(1.5)    # Wait for the dropdown options to appear before making a selection
     
     if dropdown_answer_found:   # if the dropdown answer found in the list, then select the dropdown option
         dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
