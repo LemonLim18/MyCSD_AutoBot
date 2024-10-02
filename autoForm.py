@@ -311,9 +311,9 @@ for entry in generated_answer_list:
 
 time.sleep(1.2)
 
-# PART 4: Submit the form
-# submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
-# submit_button.click()
+# LAST PART: Submit the form
+submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
+submit_button.click()
 
 
 
@@ -321,7 +321,7 @@ time.sleep(1.2)
 # link = driver.find_element(By.PARTIAL_LINK_TEXT, "Tech With Tim")
 # link.click()
 
-time.sleep(5)
+time.sleep(3)
 
 driver.quit()
 
