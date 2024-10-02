@@ -102,7 +102,17 @@ for entry in generated_answer_list:
 
 # PART 4: Select the top rate or rate of 5
 # Linear Scale
+scales_questions = driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.BpKDyb[role='radiogroup']")
+for scale_question in scales_questions:
+    scale_options = scale_question.find_elements(By.CSS_SELECTOR, "div.PY6Xd[jscontroller='FYWcYb'] label.T5pZmf")
 
+    # Loop through them and select the one with text '5'
+    for scale_option in scale_options:
+        # print("Scale Option: ", scale_option.text)
+        if scale_option.text == "5":
+            print("Found the rate of 5")
+            scale_option.click()
+            break
 
 # PART 5: Select the correct radio option from the list that carries the same meaning or is the synonym of the answer from the schema
 # Radio (Race, University, Religion)
