@@ -130,7 +130,7 @@ for radio_question in radios_questions:
     radio_options = radio_question.find_elements(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.ajBQVb span")
     
     # LOGGING: Question and Options
-    print("Radio Question: ", radio_question) 
+    print("Radio Question: ", radio_question_text) 
     for radio_option in radio_options:
         print("Radio Option: ", radio_option.text)
     
@@ -191,16 +191,77 @@ for checkboxes_question in checkboxes_questions:
             checkbox_option.click()
             
 
-    # for checkbox_option in checkboxes_options:  # This will click all the checkboxes
-    #     option_text = checkbox_option.text
-    #     print("Checkbox Option: ", option_text, " is clicked.")
-    #     checkbox_option.click()
-
-# test_checkbox = driver.find_element(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.Yri8Nb")
-# print ("Test Checkbox: ", test_checkbox.text)
-# test_checkbox.click()
-
+# PART 6: Select the correct dropdown option from the list
 # Dropdown
+# There will be 2 methods: 1. Find the answer based on the json data, 2. If not found, then randomly select one
+
+# Task: Get the dropdown question first
+dropdown_expands = driver.find_elements(By.CSS_SELECTOR, "div[role='listbox']")
+dropdown_answer_value = None
+dropdown_answer_found = False
+
+for dropdown_expand in dropdown_expands:
+    dropdown_question = dropdown_expand.find_element(By.XPATH, "../..").find_element(By.CSS_SELECTOR, "div[role='heading'] span.M7eMe").text
+    print("\n\nDropdown Question: ", dropdown_question)
+    # Dropdown Question: What gender are you
+    for answer_entry in generated_answer_list:
+        if answer_entry['field_name'].lower() == dropdown_question.lower():
+            print("Found relevant field name in the generated answer list")
+            print("Finding the answer value ...")
+            dropdown_answer_value = answer_entry['field_value']
+            if dropdown_answer_value:
+                print("Relevant Answer: ", dropdown_answer_value)
+                dropdown_answer_found = True
+                break
+            else:
+                print("The answer for this field name is empty")
+            break
+    
+    dropdown_expand.click() # Click the dropdown to expand
+    time.sleep(1.2)    # Wait for the dropdown options to appear before making a selection
+    
+    if dropdown_answer_found:   # if the dropdown answer found in the list, then select the dropdown option
+        dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
+        if type(dropdown_answer_value) is list:     # if the answer is a list, iterate through the list to find the matching or synonym dropdown option
+            for dropdown_option in dropdown_options:
+                for dropdown_answer_synonym in dropdown_answer_value:       # Iterate through the list of answer synonyms
+                    if dropdown_answer_synonym.lower() == dropdown_option.text.lower():   # For the male, can exist in Female, use == better
+                        print("Found the matching dropdown option: ", dropdown_answer_synonym)
+                        dropdown_option.click()
+                        break
+        else:   # if the answer is not a list (Exact object value), just check for the option
+            for dropdown_option in dropdown_options:
+                if dropdown_answer_value.lower() == dropdown_option.text.lower():
+                    print("Found the matching dropdown option: ", dropdown_answer_value)
+                    dropdown_option.click()
+                    break
+
+    else:   # if the dropdown answer not found in the list, then randomly select one
+        print("Randomly select option for the question: ", dropdown_question)
+        dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")      # This exists as a list, can use index to locate an element
+        random_option_index = random.randint(0, len(dropdown_options) - 1)
+        random_option_picked = dropdown_options[random_option_index]
+        print("Randomly selected option: ", random_option_picked.text, "at index: ", random_option_index)
+        random_option_picked.click()
+
+
+
+
+# time.sleep(0.7)
+
+# Now locate all the dropdown options visible after expanding
+# dropdown_options = driver.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
+
+# # Loop through and print all available dropdown options
+# for dropdown_option in dropdown_options:
+#     option_text = dropdown_option.text
+#     print("Dropdown Option: ", option_text)
+
+#     # You can modify this to click a specific option if needed
+#     if option_text == "Yes I am":  # Replace with the actual option you want to select
+#         dropdown_option.click()
+#         break
+
 
 # Date
 
