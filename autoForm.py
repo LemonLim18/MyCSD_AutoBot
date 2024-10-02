@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import re
 import time
 import json
 
@@ -48,10 +49,14 @@ for field in raw_field_id_lists:
 
 
 # PART 2: Assign the field value to the corresponding entry based on the field name
+usm_email_pattern = re.compile(r'(usm|university).*email', re.IGNORECASE)
+
 generated_answer_list = gform_field_id_lists
 for answer_entry in generated_answer_list:
     for json_key in json.data.keys():
-        if json_key.lower() in answer_entry["field_name"].lower():
+        if usm_email_pattern.search(answer_entry["field_name"]):    # if the question contains these regex
+            answer_entry["field_value"] = json.data['usm_email']    # assign the answer schema with usm email
+        elif json_key.lower() in answer_entry["field_name"].lower():
             answer_entry["field_value"] = json.data[json_key]
             break   # Break the loop if the key is found & go to the next answer_entry/field_value
 
