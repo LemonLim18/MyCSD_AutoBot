@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException   # For handling the exceptions for selenium
 import time
+import random
 import json
 
 # Initialization
@@ -114,17 +115,19 @@ for scale_question in scales_questions:
             scale_option.click()
             break
 
+
+
 # PART 5: Select the correct radio option from the list that carries the same meaning or is the synonym of the answer from the schema
 # Radio (Race, University, Religion)
 # Automatically click the right radio button based on the answer
 # Radios: contains multiple radio type questions
 # Radio Options: contains the radio options for each radio question
-radios = driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']")
-for radio in radios:
+radios_questions = driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']")
+for radio_question in radios_questions:
     # Get its question name
-    radio_question = radio.find_element(By.XPATH, "../../..").find_element(By.CSS_SELECTOR, "div.M4DNQ span.M7eMe").text
+    radio_question_text = radio_question.find_element(By.XPATH, "../../..").find_element(By.CSS_SELECTOR, "div.M4DNQ span.M7eMe").text
     # Get its radio button/option list
-    radio_options = radio.find_elements(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.ajBQVb span")
+    radio_options = radio_question.find_elements(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.ajBQVb span")
     
     # LOGGING: Question and Options
     print("Radio Question: ", radio_question) 
@@ -132,10 +135,10 @@ for radio in radios:
         print("Radio Option: ", radio_option.text)
     
     # Check which answer's field name is this radio question
-    for entry in generated_answer_list: # the answer list use the gform question as field_name, this is to bind it with value
-        if radio_question.lower() == entry['field_name'].lower():
+    for answer_entry in generated_answer_list: # the answer list use the gform question as field_name, this is to bind it with value
+        if radio_question_text.lower() == answer_entry['field_name'].lower():
             # if found the question, then extract answer from the list as selection reference
-            answer_value = entry['field_value'] # E.g. "Chinese/Cina"
+            answer_value = answer_entry['field_value'] # E.g. "Chinese/Cina"
 
     # Click the right radio button based on the answer
     found_syn = False
@@ -159,7 +162,43 @@ for radio in radios:
         print("There is no matching radio option for these answer values.")
     
 
-# Checkbox
+# PART 5: Select the desired checkbox options (For now select the first and middle one)
+# Checkbox (type list)
+checkboxes_questions = driver.find_elements(By.CSS_SELECTOR, "div.geS5n[jscontroller='sWGJ4b'] div[role='list']")
+ 
+for checkboxes_question in checkboxes_questions:
+    # Cannot use the list item as it is a shared attribute for both the question list items and the checkbox list items
+    checkboxes_options = checkboxes_question.find_elements(By.CSS_SELECTOR, "div.eBFwI[role='listitem'] > label.docssharedWizToggleLabeledContainer.Yri8Nb")
+    
+    # Get the count of checkbox options
+    options_count = len(checkboxes_options)
+    print(f"Checkbox Options Count: {options_count}")
+
+    # Generate a random index within range of available options
+    if options_count > 0:
+        num_to_select = random.randint(1, options_count)     # Randomly select 1 to all the options
+        print(f"Number of options to select: {num_to_select}")
+ 
+        random_option_index = random.randint(0, options_count - 1)
+        
+        # Randomly select the specified number of options without repetition / Now we have a set of unique selected options
+        selected_options = random.sample(checkboxes_options, num_to_select)
+ 
+        # Now we should click the options based on the randomly selected set
+        for checkbox_option in selected_options:
+            option_text = checkbox_option.text
+            print(f"Checkbox Option: '{option_text}' is clicked.")
+            checkbox_option.click()
+            
+
+    # for checkbox_option in checkboxes_options:  # This will click all the checkboxes
+    #     option_text = checkbox_option.text
+    #     print("Checkbox Option: ", option_text, " is clicked.")
+    #     checkbox_option.click()
+
+# test_checkbox = driver.find_element(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.Yri8Nb")
+# print ("Test Checkbox: ", test_checkbox.text)
+# test_checkbox.click()
 
 # Dropdown
 
