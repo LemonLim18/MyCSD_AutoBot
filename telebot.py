@@ -1,7 +1,7 @@
 import os
 import re
 from dotenv import load_dotenv
-from telethon import TelegramClient
+from telethon import TelegramClient, events
 
 # Load environment variables from .env file
 load_dotenv()
@@ -13,10 +13,11 @@ api_hash = os.getenv('API_HASH')
 client = TelegramClient('autoCSD_Log', api_id, api_hash)
 
 async def get_group_id(group_name):
-    await client.start()
+    await client.start()  # Ensure the client is started
     async for dialog in client.iter_dialogs():
         if dialog.name == group_name:
             return dialog.id
+    return None
 
 # Function to extract Google Form URLs from the message text
 def extract_google_form_urls(message_text):
@@ -36,26 +37,40 @@ def extract_google_form_urls(message_text):
 
     return found_urls
 
-async def monitor_group_messages(target_group_name):
+@client.on(events.NewMessage)
+async def new_message_listener(event):
+    # Get the message text
+    message_text = event.message.message or ""  # Ensure message_text is a string
+    target_group_name = 'AAA. Test MyCSD Bot Group'
+
+    # Check if the message is from the target group
+    if event.chat.title == target_group_name:
+        # Extract Google Form URLs
+        gform_urls = extract_google_form_urls(message_text)
+
+        if gform_urls:
+            print("\n\nGoogle form detected!!!")
+            for url in gform_urls:
+                print(f"Google Form URL: {url}")  # Print the extracted URL
+        else:
+            print("No Google Form URLs found in this message.")
+
+async def main():
+    target_group_name = 'AAA. Test MyCSD Bot Group'
     group_id = await get_group_id(target_group_name)
 
     if group_id:
-        async for message in client.iter_messages(group_id):
-            message_text = message.text or ""  # Ensure message_text is a string
-
-            # Extract Google Form URLs
-            gform_urls = extract_google_form_urls(message_text)
-
-            if gform_urls:
-                print("\n\nGoogle form detected!!!")
-                for url in gform_urls:
-                    print(f"Google Form URL: {url}")  # Print the extracted URL
-            else:
-                print("No Google Form URLs found in this message.")
-
+        print(f"Monitoring messages in {target_group_name}...")
     else:
         print(f"Group '{target_group_name}' not found")
+        return  # Exit if the group is not found
 
 # Run the client
-with client:
-    client.loop.run_until_complete(monitor_group_messages('AAA. Test MyCSD Bot Group'))
+async def run_client():
+    async with client:
+        await main()  # Start monitoring messages
+        await client.run_until_disconnected()  # Keep the client running until disconnected
+
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(run_client())  # Start the client loop
