@@ -1,7 +1,9 @@
 import os
 import re
+import json
 from dotenv import load_dotenv
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events 
+from autoForm import fill_google_form   # Import the function to fill Google Forms
 
 # Load environment variables from .env file
 load_dotenv()
@@ -29,8 +31,6 @@ def extract_google_form_urls(message_text):
 
     # Create a list to hold found URLs
     found_urls = []
-
-    # Check each pattern against the message text
     for pattern in patterns:
         matches = re.findall(pattern, message_text)
         found_urls.extend(matches)
@@ -52,6 +52,9 @@ async def new_message_listener(event):
             print("\n\nGoogle form detected!!!")
             for url in gform_urls:
                 print(f"Google Form URL: {url}")  # Print the extracted URL
+                with open("info.json", "r") as file:
+                    json_data = json.load(file)
+                fill_google_form(url, json_data)  # Fill the Google Form
         else:
             print("No Google Form URLs found in this message.")
 
