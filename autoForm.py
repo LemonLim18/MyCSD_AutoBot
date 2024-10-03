@@ -10,6 +10,8 @@ import json
 import re
 import math
 
+# Connecting the github to the Dicord channel using webhook
+
 # Initialization
 file_path = "info.json"
 with open(file_path, "r") as file:
