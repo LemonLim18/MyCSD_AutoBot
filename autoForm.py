@@ -18,8 +18,12 @@ with open(file_path, "r") as file:
 service = Service(executable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service)
 
-# URL for the Google Form
-driver.get("https://docs.google.com/forms/d/e/1FAIpQLSezCQuSdrsWJ2W6OG6eW0QCIsNk0cXC6WgRI1LG0bxAa-X1mQ/viewform?usp=sf_link")
+# URLs for the Google Form
+simple_single_page = "https://docs.google.com/forms/d/e/1FAIpQLSefF1Xnit9Z66bDgIfDwyZGIN663USgB-EPQvfFX8uwQS9oPA/viewform?usp=sf_link"
+simple_multi_page = "https://docs.google.com/forms/d/e/1FAIpQLSewT-6UcISyMuZqrYPAcIo9s382MCyOmUU5EQCAj46q6nt7pQ/viewform?usp=sf_link"
+advanced_single_page = "https://docs.google.com/forms/d/e/1FAIpQLSd44GLLFck_5oG_kUP2KYi2WGbgPxnK9kZpngEUV-bRi3OvjQ/viewform?usp=sf_link"
+advanced_multi_page = "https://docs.google.com/forms/d/e/1FAIpQLSezCQuSdrsWJ2W6OG6eW0QCIsNk0cXC6WgRI1LG0bxAa-X1mQ/viewform?usp=sf_link"
+driver.get(advanced_multi_page)
 
 WebDriverWait(driver, 10).until(
     EC.visibility_of_element_located((By.CSS_SELECTOR, "div > span.M7eMe")),
@@ -187,7 +191,49 @@ def handle_date_fields(generated_answer_list):
     except NoSuchElementException:
         pass
 
-# Navigation: Check for Next or Submit button
+# PART 9: Detect question types on the page
+def detect_question_types():
+    question_types = {
+        'text': False,
+        'linear_scale': False,
+        'radio': False,
+        'checkbox': False,
+        'dropdown': False,
+        'date': False
+    }
+    
+    try:
+        # Detect text input fields
+        if driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='text']"):
+            question_types['text'] = True
+        
+        # Detect linear scale questions
+        if driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.BpKDyb[role='radiogroup']"):
+            question_types['linear_scale'] = True
+        
+        # Detect radio buttons
+        if driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']"):
+            question_types['radio'] = True
+        
+        # Detect checkboxes
+        if driver.find_elements(By.CSS_SELECTOR, "div.geS5n[jscontroller='sWGJ4b'] div[role='list']"):
+            question_types['checkbox'] = True
+        
+        # Detect dropdowns
+        if driver.find_elements(By.CSS_SELECTOR, "div[role='listbox']"):
+            question_types['dropdown'] = True
+        
+        # Detect date input fields
+        if driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='date']"):
+            question_types['date'] = True
+    
+    except NoSuchElementException as e:
+        print(f"Error detecting question types: {e}")
+    
+    return question_types
+   
+
+# Part 10: Navigation / Check for Next or Submit button
 def navigate_next_or_submit():
     try:
         next_button = driver.find_element(By.XPATH, "//span[text()='Next']")
@@ -204,25 +250,78 @@ def navigate_next_or_submit():
             return True  # Stop if neither button is found
 
 # MAIN FUNCTION
-while True:
-    # Collect fields on the current page
-    gform_field_id_lists = collect_gform_fields()
+def main():
+    while True:
+        # Collect fields on the current page
+        gform_field_id_lists = collect_gform_fields()
 
-    # Assign values based on the json data
-    generated_answer_list = assign_field_values(gform_field_id_lists)
+        # Assign values based on the json data
+        generated_answer_list = assign_field_values(gform_field_id_lists)
 
-    # Call appropriate functions based on page content
-    fill_text_fields(generated_answer_list)
-    handle_linear_scale()
-    handle_radio_buttons(generated_answer_list)
-    handle_checkboxes()
-    handle_dropdowns(generated_answer_list)
-    handle_date_fields(generated_answer_list)
+        # Call appropriate functions based on page content
+        fill_text_fields(generated_answer_list)
+        handle_linear_scale()
+        handle_radio_buttons(generated_answer_list)
+        handle_checkboxes()
+        handle_dropdowns(generated_answer_list)
+        handle_date_fields(generated_answer_list)
 
-    # Check if there is a 'Next' or 'Submit' button to continue or finish
-    if navigate_next_or_submit():
-        break  # Exit the loop if the form is submitted
+        # Check if there is a 'Next' or 'Submit' button to continue or finish
+        if navigate_next_or_submit():
+            break  # Exit the loop if the form is submitted
+
+    time.sleep(4)
+    driver.quit()
+
+# Avoid the script from running when imported
+if __name__ == "__main__":
+    main()
 
 
-time.sleep(4)
-driver.quit()
+# --------------------- TESTING ----------------------------------
+
+# RECORD OF TIME
+# Without Detection of Question Types:
+# 1. Simple Single Page:  2.694812297821045 seconds
+# 2. Simple Multi Page: 6.691177845001221 seconds
+# 3. Advanced Single Page: 9.720359802246094 seconds
+# 4. Advanced Multi Page: 17.663202047348022 seconds
+
+# With Detection of Question Types:
+# 1. Simple Single Page: 2.4234766960144043 seconds
+# 2. Simple Multi Page: 6.756955623626709 seconds
+# 3. Advanced Single Page: 9.771028518676758 seconds
+# 4. Advanced Multi Page: 18.024168968200684 seconds
+
+# ------------------ END OF TESTING -----------------------------
+
+
+# ------------------ FUNCTIONS --------------------------------------
+
+# Add the detection method by replacing the 
+#   fill_text_fields(generated_answer_list)
+        # handle_linear_scale()
+        # handle_radio_buttons(generated_answer_list)
+        # handle_checkboxes()
+        # handle_dropdowns(generated_answer_list)
+        # handle_date_fields(generated_answer_list)
+#
+#  
+# Detect question types (DETECTION METHOD)
+        # question_types = detect_question_types()
+
+        # # Only call the relevant functions based on detected question types
+        # if question_types['text']:
+        #     fill_text_fields(generated_answer_list)
+        # if question_types['linear_scale']:
+        #     handle_linear_scale()
+        # if question_types['radio']:
+        #     handle_radio_buttons(generated_answer_list)
+        # if question_types['checkbox']:
+        #     handle_checkboxes()
+        # if question_types['dropdown']:
+        #     handle_dropdowns(generated_answer_list)
+        # if question_types['date']:
+        #     handle_date_fields(generated_answer_list)
+
+# ------------------ END OF NOTES -------------------------------
