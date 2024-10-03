@@ -316,8 +316,8 @@ for entry in generated_answer_list:
 time.sleep(1.2)
 
 # LAST PART: Submit the form
-# submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
-# submit_button.click()
+submit_button = driver.find_element(By.CSS_SELECTOR, "span.l4V7wb.Fxmcue")
+submit_button.click()
 
 
 
