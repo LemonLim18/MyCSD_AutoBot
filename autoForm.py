@@ -40,7 +40,7 @@ def collect_gform_fields():
         field_div_id = field_parent_div.get_attribute("id")
         gform_field_id_lists.append({"field_name": field_name, "field_id": field_div_id, "field_value": ""})
     return gform_field_id_lists
- 
+
 # PART 2: Assign field values based on the JSON data
 def assign_field_values(gform_field_id_lists):
     usm_email_pattern = re.compile(r'(usm|university).*email', re.IGNORECASE)
