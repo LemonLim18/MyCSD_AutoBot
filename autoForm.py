@@ -191,7 +191,7 @@ def handle_date_fields(generated_answer_list):
     except NoSuchElementException:
         pass
 
-# Part 9: Navigation / Check for Next or Submit button
+# Part 9: Navigation / Check for Next or Submit button 
 def navigate_next_or_submit():
     try:
         next_button = driver.find_element(By.XPATH, "//span[text()='Next']")
