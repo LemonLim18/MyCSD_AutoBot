@@ -191,49 +191,7 @@ def handle_date_fields(generated_answer_list):
     except NoSuchElementException:
         pass
 
-# PART 9: Detect question types on the page
-def detect_question_types():
-    question_types = {
-        'text': False,
-        'linear_scale': False,
-        'radio': False,
-        'checkbox': False,
-        'dropdown': False,
-        'date': False
-    }
-    
-    try:
-        # Detect text input fields
-        if driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='text']"):
-            question_types['text'] = True
-        
-        # Detect linear scale questions
-        if driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.BpKDyb[role='radiogroup']"):
-            question_types['linear_scale'] = True
-        
-        # Detect radio buttons
-        if driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']"):
-            question_types['radio'] = True
-        
-        # Detect checkboxes
-        if driver.find_elements(By.CSS_SELECTOR, "div.geS5n[jscontroller='sWGJ4b'] div[role='list']"):
-            question_types['checkbox'] = True
-        
-        # Detect dropdowns
-        if driver.find_elements(By.CSS_SELECTOR, "div[role='listbox']"):
-            question_types['dropdown'] = True
-        
-        # Detect date input fields
-        if driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='date']"):
-            question_types['date'] = True
-    
-    except NoSuchElementException as e:
-        print(f"Error detecting question types: {e}")
-    
-    return question_types
-   
-
-# Part 10: Navigation / Check for Next or Submit button
+# Part 9: Navigation / Check for Next or Submit button
 def navigate_next_or_submit():
     try:
         next_button = driver.find_element(By.XPATH, "//span[text()='Next']")
@@ -276,6 +234,9 @@ def main():
 # Avoid the script from running when imported
 if __name__ == "__main__":
     main()
+
+
+
 
 
 # --------------------- TESTING ----------------------------------
@@ -323,5 +284,48 @@ if __name__ == "__main__":
         #     handle_dropdowns(generated_answer_list)
         # if question_types['date']:
         #     handle_date_fields(generated_answer_list)
+
+# 
+# PART 9: Detect question types on the page
+# def detect_question_types():
+    # question_types = {
+        # 'text': False,
+        # 'linear_scale': False,
+        # 'radio': False,
+        # 'checkbox': False,
+        # 'dropdown': False,
+        # 'date': False
+    # }
+    # 
+    # try:
+        # Detect text input fields
+        # if driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='text']"):
+            # question_types['text'] = True
+        # 
+        # Detect linear scale questions
+        # if driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.BpKDyb[role='radiogroup']"):
+            # question_types['linear_scale'] = True
+        # 
+        # Detect radio buttons
+        # if driver.find_elements(By.CSS_SELECTOR, "div.lLfZXe.fnxRtf.cNDBpf[role='radiogroup']"):
+            # question_types['radio'] = True
+        # 
+        # Detect checkboxes
+        # if driver.find_elements(By.CSS_SELECTOR, "div.geS5n[jscontroller='sWGJ4b'] div[role='list']"):
+            # question_types['checkbox'] = True
+        # 
+        # Detect dropdowns
+        # if driver.find_elements(By.CSS_SELECTOR, "div[role='listbox']"):
+            # question_types['dropdown'] = True
+        # 
+        # Detect date input fields
+        # if driver.find_elements(By.CSS_SELECTOR, "input.whsOnd.zHQkBf[type='date']"):
+            # question_types['date'] = True
+    # 
+    # except NoSuchElementException as e:
+        # print(f"Error detecting question types: {e}")
+    # 
+    # return question_types
+#    
 
 # ------------------ END OF NOTES -------------------------------
