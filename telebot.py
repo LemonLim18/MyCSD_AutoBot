@@ -1,75 +1,61 @@
-from telegram import Update, Chat
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, CallbackContext
-import logging
-import re
-import asyncio
-import nest_asyncio
-import psutil
 import os
-import sys
+import re
+from dotenv import load_dotenv
+from telethon import TelegramClient
 
-# Enable logging for debugging
-logging.basicConfig(filename='bot.log', 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', 
-                    level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Load environment variables from .env file
+load_dotenv()
 
-# Patch asyncio to allow nested use
-nest_asyncio.apply()
+api_id = os.getenv('API_ID')
+api_hash = os.getenv('API_HASH')
 
-# Function to check for existing bot instances
-def check_for_existing_bot():
-    current_process = os.getpid()
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-        if proc.info['name'] == 'python.exe' and proc.info['pid'] != current_process:
-            if 'telebot.py' in proc.info['cmdline']:
-                print(f"Found running bot instance with PID: {proc.info['pid']}. Terminating it...")
-                proc.terminate()  # Terminate the existing bot instance
-                proc.wait()       # Wait for the process to terminate
+# Create a new Telegram client
+client = TelegramClient('autoCSD_Log', api_id, api_hash)
 
-# Create function to handle incoming messages from the group chat, not from the bot itself
-async def handle_message(update: Update, context: CallbackContext) -> None:
-    # Check if the message is from a group chat
-    if update.message.chat.type in [Chat.GROUP, Chat.SUPERGROUP]:
-        message_text = update.message.text      # Get the text of the message
-        chat_id = update.message.chat        # Get the chat object
+async def get_group_id(group_name):
+    await client.start()
+    async for dialog in client.iter_dialogs():
+        if dialog.name == group_name:
+            return dialog.id
 
-        # Log the message for debugging
-        logger.info(f"Received message from group {chat_id}: {message_text}")
+# Function to extract Google Form URLs from the message text
+def extract_google_form_urls(message_text):
+    # Define the regex patterns for Google Form URLs
+    patterns = [
+        r'https?://docs\.google\.com/forms/d/e/\S+',  # Full URL format for Google Forms
+        r'https?://forms\.gle/\S+'                    # Shortened URL format
+    ]
 
-        # Example: Look for messages containing URLs
-        url_match = re.search(r'(https?://[^\s]+)', message_text)
+    # Create a list to hold found URLs
+    found_urls = []
 
-        if url_match:
-            url = url_match.group(0)
-            await context.bot.send_message(chat_id=chat_id, text=f"Found a URL: {url}")
-            print(f"Found a URL: {url}")
+    # Check each pattern against the message text
+    for pattern in patterns:
+        matches = re.findall(pattern, message_text)
+        found_urls.extend(matches)
 
-# Error handler
-async def error(update: Update, context: CallbackContext) -> None:
-    logger.warning(f"Update {update} caused error {context.error}")
+    return found_urls
 
-# Main function to start the bot
-async def main():
-    bot_token = '7541098480:AAFRhypcZhRZBASXe30BRDjO3NXUJTvoc8o'
+async def monitor_group_messages(target_group_name):
+    group_id = await get_group_id(target_group_name)
 
-    # Create the Application
-    application = ApplicationBuilder().token(bot_token).build()
+    if group_id:
+        async for message in client.iter_messages(group_id):
+            message_text = message.text or ""  # Ensure message_text is a string
 
-    # Register the message handler
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+            # Extract Google Form URLs
+            gform_urls = extract_google_form_urls(message_text)
 
-    # Register the error handler
-    application.add_error_handler(error)
+            if gform_urls:
+                print("\n\nGoogle form detected!!!")
+                for url in gform_urls:
+                    print(f"Google Form URL: {url}")  # Print the extracted URL
+            else:
+                print("No Google Form URLs found in this message.")
 
-    # Start the Bot
-    print("Bot starting...")
-    await application.run_polling()  # Use await here instead of application.start_polling()
-    logger.info("Bot started successfully and is now polling for updates")
+    else:
+        print(f"Group '{target_group_name}' not found")
 
-if __name__ == '__main__':
-    check_for_existing_bot()  # Check and terminate any existing bot instances
-    try: 
-        asyncio.run(main())
-    except Exception as e:
-        logger.error(f"Failed to start the bot: {e}")
+# Run the client
+with client:
+    client.loop.run_until_complete(monitor_group_messages('AAA. Test MyCSD Bot Group'))
