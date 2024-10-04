@@ -8,3 +8,8 @@ info.json
 __pycache__/
 *.pyc
 *.pyo
+
+# Log and Session files
+autoCSD_Log.session
+*.session
+*.log
