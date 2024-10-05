@@ -1,15 +1,19 @@
 import os
 import re
 import json
+import signal   # Import the signal module to handle signals
 from dotenv import load_dotenv
 from telethon import TelegramClient, events 
-from backend.autoForm import fill_google_form   # Import the function to fill Google Forms
+from autoForm import fill_google_form   # Import the function to fill Google Forms
 
 # Load environment variables from .env file
 load_dotenv()
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
+
+# Variable to control the running state of the bot
+should_run = True
 
 # Create a new Telegram client
 client = TelegramClient('autoCSD_Log', api_id, api_hash)
@@ -37,6 +41,7 @@ def extract_google_form_urls(message_text):
 
     return found_urls
 
+
 @client.on(events.NewMessage)
 async def new_message_listener(event):
     # Get the message text
@@ -52,11 +57,25 @@ async def new_message_listener(event):
             print("\n\nGoogle form detected!!!")
             for url in gform_urls:
                 print(f"Google Form URL: {url}")  # Print the extracted URL
+                #TO-DO: Later will change the info.json to the data sent fro the Form.jsx
                 with open("info.json", "r") as file:
                     json_data = json.load(file)
                 fill_google_form(url, json_data)  # Fill the Google Form
+                print("\Google Form filled successfully! Waiting for the next form...")
         else:
             print("No Google Form URLs found in this message.")
+
+# Graceful shutdown handler
+def stop_bot(_signal_received, _frame):
+    global should_run
+    print("Signal received to stop bot...")
+    should_run = False
+    client.disconnect()  # Gracefully disconnect the Telegram client
+
+# Signal handling for exit
+signal.signal(signal.SIGTERM, stop_bot)
+signal.signal(signal.SIGINT, stop_bot)
+
 
 async def main():
     target_group_name = 'AAA. Test MyCSD Bot Group'

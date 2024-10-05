@@ -16,6 +16,7 @@ const Form = () => {
   const [race, setRace] = useState('');
   const [religion, setReligion] = useState('');
   const [message, setMessage] = useState('');
+  const [isBotRunning, setIsBotRunning] = useState(false);
 
   // Select University of Science Malaysia, set [University of Science Malaysia, USM, Universiti Sains Malaysia] as the universiti
   const handleUniversityChange = (e) => {
@@ -119,6 +120,10 @@ const Form = () => {
 
       const result = await response.json();
       console.log('Response from start-bot:', result);  // Log response from start-bot
+
+      if(response.ok) {
+        setIsBotRunning(true);  // Set isBotRunning to true if the bot is started successfully
+      }
       setMessage(result.message);
     } catch (error) {
       console.error('Error starting bot:', error);
@@ -126,6 +131,27 @@ const Form = () => {
     }
   };
 
+  // Deactivate the Bot
+  const handleStopBot = async () => {
+    console.log('Stopping bot...');  // Log bot stop action
+    try {
+      const response = await fetch('http://127.0.0.1:5000/stop-bot', {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+      console.log('Response from stop-bot:', result);  // Log response from stop-bot
+
+      if(response.ok) {
+        setIsBotRunning(false);  // Set isBotRunning to false if the bot is stopped successfully
+      }
+      setMessage(result.message);
+    } catch (error) {
+      console.error('Error stopping bot:', error);
+      setMessage('Error stopping bot');
+    }
+  };
+ 
   return (
     <div className="flex items-center justify-center h-screen">
     <div className="w-full max-w-3xl p-4 border border-gray-300 rounded shadow-lg align-items">
@@ -317,16 +343,16 @@ const Form = () => {
         {/* col-span-2 makes the element to take up two columns of the parent container if the container uses grid-cols-n */}
         <button
           type="submit"
-          className="col-span-2 bg-blue-500 text-white p-2 rounded w-full mt-4"
+          className="col-span-2 bg-blue-500 text-white p-2 rounded w-full mt-6"
         >
           Submit
         </button>
       </form>
       <button
-        onClick={handleStartBot}
-        className="bg-green-500 text-white p-2 rounded w-full mt-4"
+        onClick={isBotRunning ? handleStopBot : handleStartBot}
+        className={`bg-${isBotRunning ?'red':'green'}-500 text-white p-2 rounded w-full mt-2`}
       >
-        Start Bot
+        {isBotRunning ? 'Stop Bot' : 'Start Bot'}
       </button>
       {message && <p className="mt-4 text-center">{message}</p>}
     </div>
