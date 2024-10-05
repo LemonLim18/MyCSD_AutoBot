@@ -38,6 +38,7 @@
 
 # Log and Session files
 /backend/autoCSD_Log.session
+/backend/*.session-journal
 /backend/*.session
 /backend/*.log
 
