@@ -3,6 +3,7 @@
 /frontend/dist/
 
 /frontend/.astro/
+/frontend/.vscode/
 
 /frontend/node_modules/
 
