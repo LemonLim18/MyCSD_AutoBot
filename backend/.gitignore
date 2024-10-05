@@ -1,0 +1,20 @@
+## BACKEND ##
+# Environment variables
+.env
+
+# Configuration files
+info.json
+
+# Byte-compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Log and Session files
+autoCSD_Log.session
+*.session
+*.log
+
+# Virtual environment
+venv/
+
