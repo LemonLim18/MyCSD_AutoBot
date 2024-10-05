@@ -1,11 +1,15 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
-import os
+import subprocess
 
 # Setup the Flask Application for the backend server, which it will handle the API requests
 app = Flask(__name__)
 CORS(app)  # Enable CORS for the app
+
+# Variable to keep track of the bot process
+bot_process = None
 
 # Route for the root URL
 @app.route('/')
@@ -27,9 +31,45 @@ def submit_form():
 # Route for starting the Telegram bot [Receive a POST request at http://127.0.0.1:5000/start-bot]
 @app.route('/start-bot', methods=['POST'])
 def start_bot():
-    # Start the telebot.py logic here
-    os.system("python telebot.py")  # Run the telebot.py script
-    return jsonify({"message": "Bot started successfully"}), 200
+    global bot_process
+
+    print("START")
+    print("Checking the bot process: ", bot_process)
+    
+    # Check if bot_process is not None before calling poll()
+    if bot_process is not None:
+        if bot_process.poll() is None:
+            return jsonify({"message": "Bot is already running"}), 400  # Bot is still running
+
+    try:
+        # Start the telebot.py logic here
+        # subprocess can capture the output or error message from the script
+        bot_process = subprocess.Popen(["python", "telebot.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # If the Telebot.py script runs successfully, return a success message
+        return jsonify({"message": "Bot started successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": f"Error starting bot: {str(e)}"}), 500
+
+
+# Route for stopping the Telegram bot
+@app.route('/stop-bot', methods=['POST'])
+def stop_bot():
+    global bot_process
+
+    print("STOP")
+    print("Checking the bot process: ", bot_process)
+
+    # Check if bot_process is not None before calling poll()
+    if bot_process is not None:
+        print("Checking the bot process poll: ", bot_process.poll())  # This line will be safe now
+        if bot_process.poll() is None:  # Check if the bot process is running
+            bot_process.terminate()  # Terminate the bot process
+            bot_process.wait()  # Wait for the process to finish
+            return jsonify({"message": "Bot stopped successfully"}), 200
+        else:
+            return jsonify({"message": "Bot is not running"}), 400  # Bot has already stopped
+    else:
+        return jsonify({"message": "Bot is not running"}), 400  # Bot process was never started
 
 if __name__ == '__main__':
     app.run(debug=True)  # Run the app in debug mode

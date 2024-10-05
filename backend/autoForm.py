@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
 import time
 import random
 import json
@@ -143,8 +144,9 @@ def fill_google_form(url, json_data):
                                             dropdown_option.click()
                                             time.sleep(1)
                                             break  # Stop searching when a match is found
-                                    except Exception as e:
-                                        print(f"Error retrieving text from dropdown option: {e}")
+                                    except StaleElementReferenceException:
+                                        print("Dropdown option reference is stale. Re-fetching options.")
+                                        dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
                         else:
                             if dropdown_answer_value:
                                 for dropdown_option in dropdown_options:
@@ -155,8 +157,9 @@ def fill_google_form(url, json_data):
                                             dropdown_option.click()
                                             time.sleep(1)
                                             break  # Stop searching when a match is found
-                                    except Exception as e:
-                                        print(f"Error retrieving text from dropdown option: {e}")
+                                    except StaleElementReferenceException:
+                                        print("Dropdown option reference is stale. Re-fetching options.")
+                                        dropdown_options = dropdown_expand.find_elements(By.CSS_SELECTOR, "div[role='option'] span.vRMGwf.oJeWuf")
                             else:   # if there is no answer from the json file
                                 print(f"Randomly selecting an option for the question: {dropdown_question}")
                                 random_option_index = random.randint(1, len(dropdown_options) - 1)  # Start from 1 because index 0 is usually "Choose"
@@ -227,7 +230,7 @@ def fill_google_form(url, json_data):
         if navigate_next_or_submit():
             break  # Exit the loop if the form is submitted
 
-    time.sleep(4)
+    time.sleep(1)
     driver.quit()
 
 # Avoid the script from running when imported
