@@ -9,6 +9,10 @@ import "../styles/tailwind.css";
   <title>Astro + Flask Form</title>
 </head>
 <body>
+  <!-- remember to add client:load to hydrate the certain component as Astro is a static-site generator, meaning things produced are all static -->
+  <!-- client:load indicates that this component is dynamic component and needs to be hydrated -->
+  <!-- Hydrated means client-rendered(suitable for dynamic components) / -->
+  <!-- Dehydrated means server-rendered(suitable for static components) / -->
   <Form client:load/>
 </body>
 </html>

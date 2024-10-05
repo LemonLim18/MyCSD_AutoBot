@@ -3,6 +3,7 @@ from flask_cors import CORS
 import json
 import os
 
+# Setup the Flask Application for the backend server, which it will handle the API requests
 app = Flask(__name__)
 CORS(app)  # Enable CORS for the app
 
@@ -19,7 +20,7 @@ def submit_form():
 
     # Save the user data in a JSON file
     with open(user_file, 'w') as f:  # Open the file in write mode (**Or Create**)
-        json.dump(data, f)  # Write the JSON data to the file
+        json.dump(data, f, indent=4)  # Write the JSON data to the file with an indentation of 4 spaces
 
     return jsonify({"message": "User data saved successfully"}), 200  # Return a JSON response with a status of 200 to the frontend
 
@@ -32,3 +33,14 @@ def start_bot():
 
 if __name__ == '__main__':
     app.run(debug=True)  # Run the app in debug mode
+
+
+# -------------- HOW TO START THE FLASK SERVER-----------------------------
+
+# To start the Flask server, run the following command in the terminal:
+# 1. \venv\Scripts\activate: to start the virtual environment
+# 2. echo %FLASK_APP%: to check if the FLASK_APP is set
+# 3. set FLASK_APP=app.py: to set the FLASK_APP environment variable to our main app
+# 4. flask run: to start the Flask server
+# 5. OR python app.py: to start the Flask server
+# ------------------------------------------------------------------------

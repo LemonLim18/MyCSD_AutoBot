@@ -41,5 +41,8 @@
 /backend/*.session
 /backend/*.log
 
+# Database json file
+/backend/*.json
+
 # Virtual environment
 /backend/venv/
