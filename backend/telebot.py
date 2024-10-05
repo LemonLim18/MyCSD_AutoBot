@@ -3,7 +3,7 @@ import re
 import json
 from dotenv import load_dotenv
 from telethon import TelegramClient, events 
-from autoForm import fill_google_form   # Import the function to fill Google Forms
+from backend.autoForm import fill_google_form   # Import the function to fill Google Forms
 
 # Load environment variables from .env file
 load_dotenv()
