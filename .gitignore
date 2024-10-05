@@ -1,0 +1,44 @@
+## FRONTEND ##
+# build output
+/frontend/dist/
+
+/frontend/.astro/
+
+/frontend/node_modules/
+
+/# logs
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+
+# environment variables
+/frontend/.env
+/frontend/.env.production
+
+# macOS-specific files
+/frontend/.DS_Store
+
+# jetbrains setting folder
+/frontend/.idea/
+
+
+## BACKEND ##
+# Environment variables
+/backend/.env
+
+# Configuration files
+/backend/info.json
+
+# Byte-compiled files
+/backend/__pycache__/
+/backend/*.pyc
+/backend/*.pyo
+
+# Log and Session files
+/backend/autoCSD_Log.session
+/backend/*.session
+/backend/*.log
+
+# Virtual environment
+/backend/venv/
