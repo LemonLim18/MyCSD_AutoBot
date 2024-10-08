@@ -20,8 +20,9 @@ const SignUpComponent = () => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      window.location.href = '/login'; // Redirect to login page on success
+      // await createUserWithEmailAndPassword(auth, email, password);
+      // Once the account is created, redirect the user to fill their profile info
+      window.location.href = '/profile'; // Redirect to login page on success
     } catch (error) {
       console.error('Error creating account:', error);
       setErrorMessage('Failed to create an account. Please try again later.');
@@ -29,7 +30,7 @@ const SignUpComponent = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen">
       <div className="bg-white p-8 rounded shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
         
