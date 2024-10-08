@@ -154,7 +154,7 @@ const Form = () => {
  
   return (
     <div className="flex items-center justify-center h-screen">
-    <div className="w-full max-w-3xl p-4 border border-gray-300 rounded shadow-lg align-items">
+    <div className="bg-white w-full max-w-3xl p-4 border border-gray-300 rounded-md shadow-lg align-items">
       <h1 className="text-2xl font-bold mb-4">Personal Info Form</h1>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10">
         {/* Matric Number */}
@@ -350,7 +350,7 @@ const Form = () => {
       </form>
       <button
         onClick={isBotRunning ? handleStopBot : handleStartBot}
-        className={`bg-${isBotRunning ?'red':'green'}-500 text-white p-2 rounded w-full mt-2`}
+        className={`text-white p-2 rounded w-full mt-2 ${isBotRunning ? 'bg-red-500':'bg-green-500'}`}
       >
         {isBotRunning ? 'Stop Bot' : 'Start Bot'}
       </button>
