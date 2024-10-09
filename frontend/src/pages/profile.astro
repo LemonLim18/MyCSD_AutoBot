@@ -1,0 +1,19 @@
+---
+// src/pages/index.astro (redirects to login page if not authenticated)
+import "../styles/tailwind.css";
+import Form from '../components/Form.jsx';
+---
+
+<html>
+<head>
+  <title>MyCSD AutoBot - Profile Info</title>
+  <link rel="icon" href="/images/usm.png" type="image/png">
+</head>
+<body class="bg-cover bg-no-repeat bg-center" style="background-image: url('/images/BGND-Daun.png')">
+  <!-- remember to add client:load to hydrate the certain component as Astro is a static-site generator, meaning things produced are all static -->
+  <!-- client:load indicates that this component is dynamic component and needs to be hydrated -->
+  <!-- Hydrated means client-rendered(suitable for dynamic components) / -->
+  <!-- Dehydrated means server-rendered(suitable for static components) / -->
+  <Form client:load />
+</body>
+</html>

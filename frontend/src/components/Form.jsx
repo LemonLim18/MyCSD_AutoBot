@@ -1,5 +1,10 @@
 // src/components/Form.jsx
+// THIS IS THE FORM COMPONENT USED BY NEW PROFILE INFO PAGE & EDIT PROFILE INFO PAGE
 import React, { useState } from 'react';
+import { Tooltip, Button } from 'antd';
+import Swal from 'sweetalert2';
+import { db } from '../../firebaseConfig';
+import { collection, addDoc } from 'firebase/firestore';
 
 const Form = () => {
   const [matricNumber, setMatricNumber] = useState('');
@@ -16,7 +21,7 @@ const Form = () => {
   const [race, setRace] = useState('');
   const [religion, setReligion] = useState('');
   const [message, setMessage] = useState('');
-  const [isBotRunning, setIsBotRunning] = useState(false);
+  // const [isBotRunning, setIsBotRunning] = useState(false);
 
   // Select University of Science Malaysia, set [University of Science Malaysia, USM, Universiti Sains Malaysia] as the universiti
   const handleUniversityChange = (e) => {
@@ -60,102 +65,186 @@ const Form = () => {
     e.preventDefault();
 
     const data = {
-      matric_number: matricNumber,
       name: name,
+      matric: matricNumber,
+      ic: ic,
+      phone: phone,
       email: email,
       usm_email: usmEmail,
-      phone: phone,
-      ic: ic,
       course: course,
-      birthday: birthday,
-      gender: gender,
-      university: university,
       school: school,
+      birth: birthday,
+      gender: gender,
       race: race,
       religion: religion,
+      university: university,
     };
 
     console.log('Submitting form with data:', data);  // Log data to console
 
-    try {
-      const response = await fetch('http://127.0.0.1:5000/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      // Check if the response is ok (status in the range 200-299)
-      if (!response.ok) {
-        const errorMessage = `Server responded with status: ${response.status} - ${response.statusText}`;
-        console.error(errorMessage);
-        setMessage(errorMessage);
-        return; // Exit early if the response is not ok
-      }
+    // SweetAlert2 Confirmation Dialog
+    const confirmation = await Swal.fire({
+      title: "Are you sure?",
+      text: "Please confirm the details. You are still able to update the information afterwards.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, submit it!",
+      cancelButtonText: "Cancel",
+      // confirmButtonColor: "#d33", // Red color for "dangerous" actions
+      // cancelButtonColor: "#3085d6", // Default color for cancel button
+    });
     
-      const result = await response.json();
-      console.log('Status code:', response.status);  // Log status code
-      console.log('Response from server:', result);  // Log response from server
-      setMessage(result.message);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      // Provide a more specific message if the error is network-related
-      if (error.name === 'TypeError') {
-        setMessage('Network error: Unable to reach the server. Please try again later.');
-      } else {
-        setMessage('Error submitting form');
+    // db: database; collection: table; document: entry(with id and data[key-pair values])
+    if (confirmation.isConfirmed) {
+        // Try submitting the form
+      try {
+        // Push the data to the Firestore first, then allow the backend server to collect the data on our commands
+        const docRef = await addDoc(collection(db, "students"), data);
+        // docRef refers to the document
+        console.log("Document written with ID: ", docRef.id);
+
+        // Display a success message
+        Swal.fire({
+          title: "Success!",
+          text: `Document successfully written with ID: ${docRef.id}`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false, // No buttons in the success alert
+        }).then(() => {
+          // Returning to the login page
+          Swal.fire({
+            title: "Returning to login page...",
+            html: "Please wait <b></b> seconds.",
+            timer: 3000,
+            timerProgressBar: true,
+            allowOutsideClick: false,
+            didOpen: () => {
+              const b = Swal.getHtmlContainer().querySelector("b");
+              Swal.showLoading();
+              const interval = setInterval(() => {
+                b.textContent = Math.ceil(Swal.getTimerLeft() / 1000);
+              }, 100);
+            },
+            willClose: () => {
+              // Redirect to login page after timer ends
+              window.location.href = "/login";
+            }
+          });
+        });
+
+        // Optionally, send the data straight to the backend server
+        // const response = await fetch('http://127.0.0.1:5000/submit-form', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(data),
+        // });
+        // if (!response.ok) {
+        //   const errorMessage = `Server responded with status: ${response.status} - ${response.statusText}`;
+        //   throw new Error(errorMessage);
+        // }
+        // const result = await response.json();
+        // setMessage(result.message);
+        // // SweetAlert2 Success Alert
+        // Swal.fire({
+        //   title: "Success!",
+        //   text: result.message,
+        //   icon: "success",
+        //   timer: 3400,
+        //   showConfirmButton: false, // No buttons in the success alert
+        // });
+
+        // Delay before redirecting (e.g., 2 seconds)
+        // setTimeout(() => {
+        //   window.location.href = "/login"; // Replace with your redirect URL
+        // }, 3400);
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        // SweetAlert2 Error Alert
+        Swal.fire({
+          title: "Submission Failed!",
+          text: error.message || 'An error occurred while submitting the form.',
+          icon: "error",
+          timer: 3000,
+          showConfirmButton: false, // No buttons in the error alert
+        });
       }
+    } else {
+        Swal.fire("Form submission canceled!", {
+          icon: "info",
+          timer: 1500,
+          showConfirmButton: false,
+        });
     }
   };
 
 
+    
+    // } catch (error) {
+    //   console.error('Error submitting form:', error);
+    //   // Provide a more specific message if the error is network-related
+    //   if (error.name === 'TypeError') {
+    //     setMessage('Network error: Unable to reach the server. Please try again later.');
+    //   } else {
+    //     setMessage('Error submitting form');
+    //   }
+    // }
+
+
+  // ROBOT ACTIVATION BUTTON - COMMENT FOR NOW
   // Activate the Bot
-  const handleStartBot = async () => {
-    console.log('Starting bot...');  // Log bot start action
-    try {
-      const response = await fetch('http://127.0.0.1:5000/start-bot', {
-        method: 'POST',
-      });
+  // const handleStartBot = async () => {
+  //   console.log('Starting bot...');  // Log bot start action
+  //   try {
+  //     const response = await fetch('http://127.0.0.1:5000/start-bot', {
+  //       method: 'POST',
+  //     });
 
-      const result = await response.json();
-      console.log('Response from start-bot:', result);  // Log response from start-bot
+  //     const result = await response.json();
+  //     console.log('Response from start-bot:', result);  // Log response from start-bot
 
-      if(response.ok) {
-        setIsBotRunning(true);  // Set isBotRunning to true if the bot is started successfully
-      }
-      setMessage(result.message);
-    } catch (error) {
-      console.error('Error starting bot:', error);
-      setMessage('Error starting bot');
-    }
-  };
+  //     if(response.ok) {
+  //       setIsBotRunning(true);  // Set isBotRunning to true if the bot is started successfully
+  //     }
+  //     setMessage(result.message);
+  //   } catch (error) {
+  //     console.error('Error starting bot:', error);
+  //     setMessage('Error starting bot');
+  //   }
+  // };
 
-  // Deactivate the Bot
-  const handleStopBot = async () => {
-    console.log('Stopping bot...');  // Log bot stop action
-    try {
-      const response = await fetch('http://127.0.0.1:5000/stop-bot', {
-        method: 'POST',
-      });
+  // // Deactivate the Bot
+  // const handleStopBot = async () => {
+  //   console.log('Stopping bot...');  // Log bot stop action
+  //   try {
+  //     const response = await fetch('http://127.0.0.1:5000/stop-bot', {
+  //       method: 'POST',
+  //     });
 
-      const result = await response.json();
-      console.log('Response from stop-bot:', result);  // Log response from stop-bot
+  //     const result = await response.json();
+  //     console.log('Response from stop-bot:', result);  // Log response from stop-bot
 
-      if(response.ok) {
-        setIsBotRunning(false);  // Set isBotRunning to false if the bot is stopped successfully
-      }
-      setMessage(result.message);
-    } catch (error) {
-      console.error('Error stopping bot:', error);
-      setMessage('Error stopping bot');
-    }
-  };
+  //     if(response.ok) {
+  //       setIsBotRunning(false);  // Set isBotRunning to false if the bot is stopped successfully
+  //     }
+  //     setMessage(result.message);
+  //   } catch (error) {
+  //     console.error('Error stopping bot:', error);
+  //     setMessage('Error stopping bot');
+  //   }
+  // };
  
   return (
     <div className="flex items-center justify-center h-screen">
     <div className="bg-white w-full max-w-3xl p-4 border border-gray-300 rounded-md shadow-lg align-items">
-      <h1 className="text-2xl font-bold mb-4">Personal Info Form</h1>
+    <div className="flex items-center space-x-4 mb-4">
+      <h1 className="text-2xl font-bold">Personal Info Form</h1>
+      <Tooltip className="top-[2.5px] rounded-3xl" title="This form is used to store the information to be automatically filled into the GForm. You may update the information afterwards as well.">
+        <Button>?</Button>
+      </Tooltip>
+    </div>
+
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10">
         {/* Matric Number */}
         <label className="block">
@@ -348,12 +437,15 @@ const Form = () => {
           Submit
         </button>
       </form>
-      <button
+
+      {/* ROBOT ACTIVATION BUTTON - COMMENT FOR NOW */}
+      {/* <button
         onClick={isBotRunning ? handleStopBot : handleStartBot}
         className={`text-white p-2 rounded w-full mt-2 ${isBotRunning ? 'bg-red-500':'bg-green-500'}`}
       >
         {isBotRunning ? 'Stop Bot' : 'Start Bot'}
-      </button>
+      </button> */}
+
       {message && <p className="mt-4 text-center">{message}</p>}
     </div>
     </div>

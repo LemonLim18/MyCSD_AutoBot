@@ -1,34 +1,7 @@
 ---
 // src/pages/index.astro (redirects to login page if not authenticated)
 import "../styles/tailwind.css";
-import Form from '../components/Form.jsx';
-import { createSignal, onMount } from 'solid-js';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../firebaseConfig';
-
-// Create a reactive signal for login status
-const [isLoggedIn, setIsLoggedIn] = createSignal(false);
-
-onMount(() => {
-  // Add event listener for sign out button
-  document.getElementById('signOutButton')?.addEventListener('click', () => {
-    auth.signOut().then(() => window.location.href = '/login');
-  });
-
-  // Check if the auth state has changed
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, redirect to dashboard
-      setIsLoggedIn(true);
-      console.log("The auth: ", user)
-    } else {
-      setIsLoggedIn(false);
-      console.log("The auth: ", user)
-      // User is not signed in, redirect to login
-      window.location.href = '/login';
-    } 
-  })
-});
+import UserDashboard from '../components/UserDashboard.jsx';
 ---
 
 <html>
@@ -41,12 +14,6 @@ onMount(() => {
   <!-- client:load indicates that this component is dynamic component and needs to be hydrated -->
   <!-- Hydrated means client-rendered(suitable for dynamic components) / -->
   <!-- Dehydrated means server-rendered(suitable for static components) / -->
-  { isLoggedIn() && (
-    <div>
-      <h1 class="text-4xl text-center text-white font-bold">Welcome to MyCSD AutoBot Dashboard</h1>
-      <button id="signOutButton">Sign Out</button>
-    </div>
-  )}
-  <Form client:load />
+  <UserDashboard client:load />
 </body>
 </html>
