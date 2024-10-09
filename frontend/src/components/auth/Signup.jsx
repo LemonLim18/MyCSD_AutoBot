@@ -20,7 +20,7 @@ const SignUpComponent = () => {
     }
 
     try {
-      // await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       // Once the account is created, redirect the user to fill their profile info
       window.location.href = '/profile'; // Redirect to login page on success
     } catch (error) {

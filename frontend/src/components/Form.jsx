@@ -1,7 +1,10 @@
 // src/components/Form.jsx
+// THIS IS THE FORM COMPONENT USED BY NEW PROFILE INFO PAGE & EDIT PROFILE INFO PAGE
 import React, { useState } from 'react';
 import { Tooltip, Button } from 'antd';
-import swal from 'sweetalert';  // Import SweetAlert
+import Swal from 'sweetalert2';
+import { db } from '../../firebaseConfig';
+import { collection, addDoc } from 'firebase/firestore';
 
 const Form = () => {
   const [matricNumber, setMatricNumber] = useState('');
@@ -18,7 +21,7 @@ const Form = () => {
   const [race, setRace] = useState('');
   const [religion, setReligion] = useState('');
   const [message, setMessage] = useState('');
-  const [isBotRunning, setIsBotRunning] = useState(false);
+  // const [isBotRunning, setIsBotRunning] = useState(false);
 
   // Select University of Science Malaysia, set [University of Science Malaysia, USM, Universiti Sains Malaysia] as the universiti
   const handleUniversityChange = (e) => {
@@ -62,85 +65,120 @@ const Form = () => {
     e.preventDefault();
 
     const data = {
-      matric_number: matricNumber,
       name: name,
+      matric: matricNumber,
+      ic: ic,
+      phone: phone,
       email: email,
       usm_email: usmEmail,
-      phone: phone,
-      ic: ic,
       course: course,
-      birthday: birthday,
-      gender: gender,
-      university: university,
       school: school,
+      birth: birthday,
+      gender: gender,
       race: race,
       religion: religion,
+      university: university,
     };
 
     console.log('Submitting form with data:', data);  // Log data to console
 
-    // SweetAlert Confirmation Dialog
-    swal({
+    // SweetAlert2 Confirmation Dialog
+    const confirmation = await Swal.fire({
       title: "Are you sure?",
       text: "Please confirm the details. You are still able to update the information afterwards.",
       icon: "warning",
-      buttons: true,
-      dangerMode: true,
-    })
-    .then(async (willSubmit) => {
-      if (willSubmit) {
+      showCancelButton: true,
+      confirmButtonText: "Yes, submit it!",
+      cancelButtonText: "Cancel",
+      // confirmButtonColor: "#d33", // Red color for "dangerous" actions
+      // cancelButtonColor: "#3085d6", // Default color for cancel button
+    });
+    
+    // db: database; collection: table; document: entry(with id and data[key-pair values])
+    if (confirmation.isConfirmed) {
         // Try submitting the form
-        try {
-          const response = await fetch('http://127.0.0.1:5000/submit-form', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
+      try {
+        // Push the data to the Firestore first, then allow the backend server to collect the data on our commands
+        const docRef = await addDoc(collection(db, "students"), data);
+        // docRef refers to the document
+        console.log("Document written with ID: ", docRef.id);
 
-          if (!response.ok) {
-            const errorMessage = `Server responded with status: ${response.status} - ${response.statusText}`;
-            throw new Error(errorMessage);
-          }
-
-          const result = await response.json();
-          setMessage(result.message);
-
-          // SweetAlert Success Alert
-          swal({
-            title: "Success!",
-            text: result.message,
-            icon: "success",
-            timer: 3400,
-            buttons: false, // No buttons in the success alert
-          });
-
-          // Delay before redirecting (e.g., 2 seconds)
-          setTimeout(() => {
-            window.location.href = "/login"; // Replace with your redirect URL
-          }, 3400);
-        } catch (error) {
-          console.error('Error submitting form:', error);
-
-          // SweetAlert Error Alert
-          swal({
-            title: "Submission Failed!",
-            text: error.message || 'An error occurred while submitting the form.',
-            icon: "error",
+        // Display a success message
+        Swal.fire({
+          title: "Success!",
+          text: `Document successfully written with ID: ${docRef.id}`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false, // No buttons in the success alert
+        }).then(() => {
+          // Returning to the login page
+          Swal.fire({
+            title: "Returning to login page...",
+            html: "Please wait <b></b> seconds.",
             timer: 3000,
-            buttons: false, // No buttons in the error alert
+            timerProgressBar: true,
+            allowOutsideClick: false,
+            didOpen: () => {
+              const b = Swal.getHtmlContainer().querySelector("b");
+              Swal.showLoading();
+              const interval = setInterval(() => {
+                b.textContent = Math.ceil(Swal.getTimerLeft() / 1000);
+              }, 100);
+            },
+            willClose: () => {
+              // Redirect to login page after timer ends
+              window.location.href = "/login";
+            }
           });
-        }
-      } else {
-        swal("Form submission canceled!", {
-          icon: "info",
-          timer: 1500,
-          buttons: false,
+        });
+
+        // Optionally, send the data straight to the backend server
+        // const response = await fetch('http://127.0.0.1:5000/submit-form', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(data),
+        // });
+        // if (!response.ok) {
+        //   const errorMessage = `Server responded with status: ${response.status} - ${response.statusText}`;
+        //   throw new Error(errorMessage);
+        // }
+        // const result = await response.json();
+        // setMessage(result.message);
+        // // SweetAlert2 Success Alert
+        // Swal.fire({
+        //   title: "Success!",
+        //   text: result.message,
+        //   icon: "success",
+        //   timer: 3400,
+        //   showConfirmButton: false, // No buttons in the success alert
+        // });
+
+        // Delay before redirecting (e.g., 2 seconds)
+        // setTimeout(() => {
+        //   window.location.href = "/login"; // Replace with your redirect URL
+        // }, 3400);
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        // SweetAlert2 Error Alert
+        Swal.fire({
+          title: "Submission Failed!",
+          text: error.message || 'An error occurred while submitting the form.',
+          icon: "error",
+          timer: 3000,
+          showConfirmButton: false, // No buttons in the error alert
         });
       }
-    });
-};
+    } else {
+        Swal.fire("Form submission canceled!", {
+          icon: "info",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+    }
+  };
+
 
     
     // } catch (error) {
