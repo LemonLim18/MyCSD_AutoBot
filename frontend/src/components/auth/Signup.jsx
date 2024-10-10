@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../firebaseConfig'; // Import the auth instance
+import { auth, db } from '../../../firebaseConfig'; // Import the auth instance
+import { doc, setDoc } from 'firebase/firestore';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 
 const SignUpComponent = () => {
@@ -11,6 +12,8 @@ const SignUpComponent = () => {
   const [passwordVisible, setPasswordVisible] = useState(false); // For toggling password visibility
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // For toggling confirm password visibility
 
+  // Set the 
+
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -20,9 +23,18 @@ const SignUpComponent = () => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;  // Firebase user object
+      const firebaseUid = user.uid; // Firebase user UID
+
+      // Store the user data in Firestore, using the UID as the document ID
+      await setDoc(doc(db, 'students', firebaseUid), {
+        // email: email,
+        createdAt: new Date().toISOString(),
+      });
+
       // Once the account is created, redirect the user to fill their profile info
-      window.location.href = '/profile'; // Redirect to login page on success
+      window.location.href = `/profile?uid=${firebaseUid}`; // Redirect to login page on success
     } catch (error) {
       console.error('Error creating account:', error);
       setErrorMessage('Failed to create an account. Please try again later.');

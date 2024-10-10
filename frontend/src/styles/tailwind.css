@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.my-blurred-backdrop {
+    background: rgba(0, 0, 0);  /* Darker overlay */
+    backdrop-filter: blur(100px);  /* Increase blur intensity */
+    -webkit-backdrop-filter: blur(100px);  /* For Safari */
+}
