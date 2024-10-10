@@ -1,7 +1,7 @@
 ---
 // src/pages/index.astro (redirects to login page if not authenticated)
 import "../styles/tailwind.css";
-import Form from '../components/Form.jsx';
+import ProfileForm from '../components/ProfileForm.jsx';
 ---
 
 <html>
@@ -14,6 +14,6 @@ import Form from '../components/Form.jsx';
   <!-- client:load indicates that this component is dynamic component and needs to be hydrated -->
   <!-- Hydrated means client-rendered(suitable for dynamic components) / -->
   <!-- Dehydrated means server-rendered(suitable for static components) / -->
-  <Form client:load />
+  <ProfileForm client:load />
 </body>
 </html>

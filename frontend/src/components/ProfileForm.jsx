@@ -1,12 +1,13 @@
 // src/components/Form.jsx
 // THIS IS THE FORM COMPONENT USED BY NEW PROFILE INFO PAGE & EDIT PROFILE INFO PAGE
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tooltip, Button } from 'antd';
 import Swal from 'sweetalert2';
 import { db } from '../../firebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, doc, setDoc } from 'firebase/firestore';
 
-const Form = () => {
+const ProfileForm = () => {
+  const [firebase_uid, setFirebaseUid] = useState('');
   const [matricNumber, setMatricNumber] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,6 +23,19 @@ const Form = () => {
   const [religion, setReligion] = useState('');
   const [message, setMessage] = useState('');
   // const [isBotRunning, setIsBotRunning] = useState(false);
+
+  
+
+  useEffect(() => {
+    const queryString = window.location.search; 
+    const urlParams = new URLSearchParams(queryString); 
+    const fbUid = urlParams.get('uid');
+    
+    if(fbUid){ 
+      setFirebaseUid(fbUid);
+      console.log("ProfileForm initialized with firebase_uid: ", firebase_uid);
+    }
+  }, [firebase_uid]);
 
   // Select University of Science Malaysia, set [University of Science Malaysia, USM, Universiti Sains Malaysia] as the universiti
   const handleUniversityChange = (e) => {
@@ -70,7 +84,7 @@ const Form = () => {
       ic: ic,
       phone: phone,
       email: email,
-      usm_email: usmEmail,
+      usm: usmEmail,
       course: course,
       school: school,
       birth: birthday,
@@ -99,7 +113,9 @@ const Form = () => {
         // Try submitting the form
       try {
         // Push the data to the Firestore first, then allow the backend server to collect the data on our commands
-        const docRef = await addDoc(collection(db, "students"), data);
+        const docRef = doc(db, "students", firebase_uid);
+        console.log("docRef:", docRef);
+        await setDoc(docRef, data, { merge: true });    // Merge true to avoid overwriting existing fields
         // docRef refers to the document
         console.log("Document written with ID: ", docRef.id);
 
@@ -452,4 +468,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default ProfileForm;

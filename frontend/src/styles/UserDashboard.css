@@ -1,0 +1,6 @@
+/* UserDashboard.css */
+.my-blurred-backdrop {
+    background: rgba(0, 0, 0, 0.8);  /* Darker overlay */
+    backdrop-filter: blur(20px);  /* Increase blur intensity */
+    -webkit-backdrop-filter: blur(20px);  /* For Safari */
+}

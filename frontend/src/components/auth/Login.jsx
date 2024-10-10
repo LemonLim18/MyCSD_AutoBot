@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../../../firebaseConfig'; // Import the auth instance
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
+import Swal from 'sweetalert2';
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +17,17 @@ const LoginComponent = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = '/dashboard'; // Redirect to dashboard on success
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Logged in successfully!',
+        showConfirmButton: false,
+        timer: 2200,
+      })
+      setTimeout(() => {
+        window.location.href = '/dashboard'
+      }, 2500);   // Adjust delay slightly longer than the timer (2000ms)
     } catch (error) {
       console.error('Error logging in:', error);
       setErrorMessage('Failed to log in. Email does not match the password.');
