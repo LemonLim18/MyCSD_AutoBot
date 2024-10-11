@@ -50,11 +50,29 @@ const EditProfileForm = () => {
         fetchProfileData(uid);  // Fetch the existing profile data
       } else {
         console.log("No user is signed in.");
+        Swal.fire({
+            icon: 'error',
+            title: 'You Are Not Signed In',
+            text: 'Please sign in to access the Edit Profile Form',
+            timer: 1500,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+        }).then(() => {
+          Swal.fire({
+            title: "Redirecting to login page...",
+            timer: 1200,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            willClose: () => {
+              window.location.href = "/login";
+            }
+          })
+        });
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [db, auth]);
 
   // Select University of Science Malaysia, set [University of Science Malaysia, USM, Universiti Sains Malaysia] as the universiti
   const handleUniversityChange = (e) => {
@@ -69,7 +87,11 @@ const EditProfileForm = () => {
             values = [selectedUniversity];
         }
 
-        setUniversity(values); // Store the array of values
+        // setUniversity(values); // Store the array of values
+        setProfileData((prevState) => ({
+          ...prevState,
+          university: values
+        }));
   };
 
   // Handle the selection of the school
@@ -91,7 +113,11 @@ const EditProfileForm = () => {
         values = [selectedSchool];
     };
 
-    setSchool(values); // Store the array of values
+    // setSchool(values); // Store the array of values
+    setProfileData((prevState) => ({
+      ...prevState,
+      school: values
+    }));
   };
 
   // Handle input changes
@@ -349,9 +375,15 @@ const EditProfileForm = () => {
         {/* col-span-2 makes the element to take up two columns of the parent container if the container uses grid-cols-n */}
         <button
           type="submit"
-          className="col-span-2 bg-blue-500 text-white p-2 rounded w-full mt-6"
+          className="col-span-2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded w-full mt-6"
         >
           Update
+        </button>
+        <button
+          onClick={() => window.location.href = '/dashboard'}
+          className='col-span-2 bg-gray-500 hover:bg-gray-600 text-white p-2 rounded w-full mt-2'
+        >
+          Cancel
         </button>
       </form> 
 
