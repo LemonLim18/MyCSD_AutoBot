@@ -225,7 +225,7 @@ const Dashboard = () => {
         <div className="space-x-4">
           {/* Edit Profile Button */}
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4"
+            className="bg-blue-500 hover:bg-blue-500 text-white px-4 py-2 rounded-md mb-4"
             onClick={() => window.location.href = '/editProfile'}
           >
             Edit Profile
@@ -234,7 +234,7 @@ const Dashboard = () => {
           {/* Start/Stop Bot Button */}
           <button
             onClick={isBotRunning ? handleStopBot : handleStartBot}
-            className={`text-white px-4 py-2 rounded-md ${isBotRunning ? 'bg-red-500' : 'bg-green-500'}`}
+            className={`text-white px-4 py-2 rounded-md ${isBotRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
           >
             {isBotRunning ? 'Stop Bot' : 'Start Bot'}
           </button>
@@ -242,7 +242,7 @@ const Dashboard = () => {
           {/* Log Out Button */}
           <button
             onClick={handleLogout}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md"
+            className="bg-gray-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
           >
             Log Out
           </button>
