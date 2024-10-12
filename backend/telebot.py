@@ -58,7 +58,8 @@ async def new_message_listener(event):
             for url in gform_urls:
                 print(f"Google Form URL: {url}")  # Print the extracted URL
                 #TO-DO: Later will change the info.json to the data sent fro the Form.jsx
-                with open("info.json", "r") as file:
+                # READ THE PROFILEINFO.JSON FILE WHICH MAINLY STORES THE INFORMATION OF THE SIGNED-IN USER RETRIEVED FROM THE FIRESTORE
+                with open("profileInfo.json", "r") as file:
                     json_data = json.load(file)
                 fill_google_form(url, json_data)  # Fill the Google Form
                 print("\Google Form filled successfully! Waiting for the next form...")
