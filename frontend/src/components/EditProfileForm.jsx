@@ -11,8 +11,8 @@ const EditProfileForm = () => {
     matric: '',
     name: '',
     email: '',
-    usm: '',
-    phone: '',
+    usm_email: '',
+    tel: '',
     ic: '',
     course: '',
     birth: '',
@@ -267,7 +267,7 @@ const EditProfileForm = () => {
           <input
             type="tel"
             name="phone"
-            value={profileData.phone}
+            value={profileData.tel}
             onChange={handleChange}
             placeholder="+6012-3456789"
             required
@@ -295,7 +295,7 @@ const EditProfileForm = () => {
           <input
             type="email"
             name="usm"
-            value={profileData.usm}
+            value={profileData.usm_email}
             onChange={handleChange}
             placeholder="johndoe@student.usm.my"
             required

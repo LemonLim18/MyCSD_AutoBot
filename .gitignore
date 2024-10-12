@@ -46,3 +46,6 @@
 
 # Virtual environment
 /backend/venv/
+
+# Firebase Admin SDK
+/backend/mycsd-autobot-firebase-adminsdk-vdska-0ca96dc8e5.json

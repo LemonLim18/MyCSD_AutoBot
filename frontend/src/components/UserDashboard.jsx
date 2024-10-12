@@ -8,6 +8,7 @@ import '../styles/UserDashboard.css';
 const Dashboard = () => {
     const [isBotRunning, setIsBotRunning] = useState(false);
     const [username, setUsername] = useState('');
+    const [currentUserUid, setCurrentUserUid] = useState('');
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     // const [message, setMessage] = useState('');
 
@@ -23,6 +24,8 @@ const Dashboard = () => {
           // Get user's UID
           const uid = user.uid;
           console.log('User is signed in:', uid);
+          // Set the current user's UID
+          setCurrentUserUid(uid);
           // Reference to the user's document in Firestore
           const studentDocRef = doc(db, 'students', uid);
 
@@ -79,9 +82,15 @@ const Dashboard = () => {
     // Activate the Bot
     const handleStartBot = async () => {
       console.log('Starting bot...');  // Log bot start action
+      console.log("Current signed-in user's UID:", currentUserUid);  // Log the current signed-in user's UID
       try {
+        // Maybe pass the user UID to the backend to find the login user document
         const response = await fetch('http://127.0.0.1:5000/start-bot', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({uid: currentUserUid}),
         });
 
         const result = await response.json();

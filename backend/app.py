@@ -1,4 +1,5 @@
-import os
+import firebase_admin
+from firebase_admin import credentials, firestore
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
@@ -8,6 +9,13 @@ import subprocess
 app = Flask(__name__)
 CORS(app)  # Enable CORS for the app
 
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate('mycsd-autobot-firebase-adminsdk-vdska-0ca96dc8e5.json')
+firebase_admin.initialize_app(cred)
+
+# Intialize Firestore DB
+db = firestore.client()
+
 # Variable to keep track of the bot process
 bot_process = None
 
@@ -16,6 +24,8 @@ bot_process = None
 def index():
     return "Welcome to the Flask API!"  # Add a welcome message for the root URL
 
+# COMMENT THIS AS WE ARE NOT SUBMITTING THE FORM TO THIS BACKEND
+# RATHER, WE SEND THE FORM DATA BACK TO THE BACK
 # Route for handling form submissions
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
@@ -33,20 +43,43 @@ def submit_form():
 def start_bot():
     global bot_process
 
-    print("START")
-    print("Checking the bot process: ", bot_process)
-    
-    # Check if bot_process is not None before calling poll()
-    if bot_process is not None:
-        if bot_process.poll() is None:
-            return jsonify({"message": "Bot is already running"}), 400  # Bot is still running
+    firebase_uid = request.json.get('uid', None)    #Extract the Firebase UID from the request JSON data
+    print(f"Firebase UID: {firebase_uid}")
 
+    if not firebase_uid:
+        return jsonify({"message": "No firebase uid provided"}), 400
+    
     try:
+        # Retrieve the user document fron the Firestore using the UID
+        student_doc_ref = db.collection('students').document(firebase_uid)  # Target & reference the file
+        student_doc = student_doc_ref.get()
+
+        if student_doc.exists:
+            student_data = student_doc.to_dict()
+            with open("profileInfo.json", 'w') as json_file:
+                json.dump(student_data, json_file, indent=4)
+
+            print(f"Student Data for UID {firebase_uid}: {student_data}") 
+        else:
+            return jsonify({"message": "Student data not found in Firestore"}), 404
+
+        print("START")
+        print("Checking the bot process: ", bot_process)
+
+        # Check if bot_process is not None before calling poll()
+        if bot_process is not None:
+            if bot_process.poll() is None:
+                return jsonify({"message": "Bot is already running"}), 400  # Bot is still running
+
+        # try:
         # Start the telebot.py logic here
         # subprocess can capture the output or error message from the script
         bot_process = subprocess.Popen(["python", "telebot.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # If the Telebot.py script runs successfully, return a success message
-        return jsonify({"message": "Bot started successfully"}), 200
+        return jsonify({
+            "message": "Bot started successfully",
+            "student_data": student_data
+        }), 200
     except Exception as e:
         return jsonify({"message": f"Error starting bot: {str(e)}"}), 500
 
