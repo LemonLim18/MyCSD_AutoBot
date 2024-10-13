@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
+from datetime import datetime
 import time
 import random
 import json
@@ -212,12 +213,18 @@ def fill_google_form(url, json_data):
                 answer_date_id = entry['field_id']
                 answer_date_value = entry['field_value']
                 try:
+                    # Find the date input field
                     date_input = driver.find_element(By.CSS_SELECTOR, f"div[aria-labelledby='{answer_date_id}'] input.whsOnd.zHQkBf[type='date']")
                     date_input.clear()
-                    if answer_date_value:
-                        date_input.send_keys(answer_date_value)
-                    else:
-                        current_date = time.strftime("%Y-%m-%d")
+
+                    # If there is a date in the answer schema, use it
+                    if answer_date_value: 
+                        # Assuming answer_date_value is a string in "YYYY-MM-DD" format
+                        date_obj = datetime.strptime(answer_date_value, "%Y-%m-%d")
+                        formatted_date = date_obj.strftime("%d-%m-%Y")  # Convert to "DD-MM-YYYY" format
+                        date_input.send_keys(formatted_date)
+                    else:   # Else, pick a random date like today
+                        current_date = datetime.now().strftime("%d-%m-%Y")
                         date_input.send_keys(current_date)
                 except NoSuchElementException:
                     continue
