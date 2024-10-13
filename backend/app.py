@@ -69,7 +69,10 @@ def start_bot():
         # Check if bot_process is not None before calling poll()
         if bot_process is not None:
             if bot_process.poll() is None:
-                return jsonify({"message": "Bot is already running"}), 400  # Bot is still running
+                return jsonify({
+                    "message": "Bot is already running",
+                    "status": "Operational"
+                }), 400  # Bot is still running
 
         # try:
         # Start the telebot.py logic here
@@ -78,7 +81,8 @@ def start_bot():
         # If the Telebot.py script runs successfully, return a success message
         return jsonify({
             "message": "Bot started successfully",
-            "student_data": student_data
+            "student_data": student_data,
+            "status": "Operational"
         }), 200
     except Exception as e:
         return jsonify({"message": f"Error starting bot: {str(e)}"}), 500
@@ -98,11 +102,20 @@ def stop_bot():
         if bot_process.poll() is None:  # Check if the bot process is running
             bot_process.terminate()  # Terminate the bot process
             bot_process.wait()  # Wait for the process to finish
-            return jsonify({"message": "Bot stopped successfully"}), 200
+            return jsonify({
+                "message": "Bot stopped successfully",
+                "status": "Stopped"
+            }), 200
         else:
-            return jsonify({"message": "Bot is not running"}), 400  # Bot has already stopped
+            return jsonify({
+                "message": "Bot is not running",
+                "status": "Stopped"
+            }), 400  # Bot has already stopped
     else:
-        return jsonify({"message": "Bot is not running"}), 400  # Bot process was never started
+        return jsonify({
+            "message": "Bot is not running",
+            "status": "Stopped"
+        }), 400  # Bot process was never started
 
 if __name__ == '__main__':
     app.run(debug=True)  # Run the app in debug mode

@@ -25,7 +25,7 @@ def fill_google_form(url, json_data):
     
     driver.get(url)
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, "div > span.M7eMe")),
         EC.visibility_of_element_located((By.CSS_SELECTOR, "input.whsOnd.zHQkBf"))
     )
@@ -87,22 +87,45 @@ def fill_google_form(url, json_data):
                 radio_options = radio_question.find_elements(By.CSS_SELECTOR, "label.docssharedWizToggleLabeledContainer.ajBQVb span")
                 for answer_entry in generated_answer_list:
                     if radio_question_text.lower() == answer_entry['field_name'].lower():
+                        print("radio question: ", radio_question_text)
                         answer_value = answer_entry['field_value']
 
                         # If answer_value is a list, handle it
                         if isinstance(answer_value, list):
+                            matched = False  # Flag to track if a matching option is met
                             for synonym in answer_value:
                                 for radio_option in radio_options:
                                     if synonym.lower() in radio_option.text.lower():
                                         print(f"Found matching radio option for synonym: {synonym}")
                                         radio_option.click()
-                                        continue  
+                                        matched = True
+                                        # continue
+                                        break  # Exit the loop once a match is found
+                                if matched:
+                                    break  # Exit the outer loop if a match is found
+
+                            # If no match is found, randomly pick an option
+                            if not matched:
+                                random_option = random.choice(radio_options)  # Select a random radio option
+                                print(f"No matching option found. Randomly selecting: {random_option.text}")
+                                random_option.click() 
+
                         else:
+                            matched = False  # Flag to track if a matching option is found
                             for radio_option in radio_options:
                                 if answer_value.lower() in radio_option.text.lower():
                                     print(f"Found matching radio option: {answer_value}")
                                     radio_option.click()
-                                    continue 
+                                    matched = True
+                                    # continue 
+                                    break
+
+                            # If no match is found, randomly pick an option
+                            if not matched:
+                                random_option = random.choice(radio_options)  # Select a random radio option
+                                print(f"No matching option found. Randomly selecting: {random_option.text}")
+                                random_option.click()    
+
         except NoSuchElementException:
             pass
 
