@@ -95,8 +95,10 @@ const Dashboard = () => {
 
         const result = await response.json();
         console.log('Response from start-bot:', result);  // Log response from start-bot
-
-        if(response.ok) {
+        console.log('Checking the running state:', result.status)
+        // if(response.ok) {
+        if(result.status === 'Operational') {
+          // The result.status takes the real running state, if it doesnt run anymore, set isRunning to false
           setIsBotRunning(true);  // Set isBotRunning to true if the bot is started successfully
           Swal.fire({
             icon: 'success',
@@ -109,6 +111,8 @@ const Dashboard = () => {
             title: 'Error Starting Bot',
             text: result.message || 'Failed to start the bot. Please try again.',
           });
+          console.error("isRunning:", isBotRunning)
+          setIsBotRunning(false);  // Ensure it's set to false if the bot didn't start
         }
         // setMessage(result.message);
       } catch (error) {
@@ -119,6 +123,7 @@ const Dashboard = () => {
           text: 'Failed to start the bot. Please try again.',
         });
         // setMessage('Error starting bot');
+        setIsBotRunning(false);   // Set isBotRunning to false in case of an error
       }
     };
 
@@ -132,8 +137,10 @@ const Dashboard = () => {
 
         const result = await response.json();
         console.log('Response from stop-bot:', result);  // Log response from stop-bot
+        console.log('Checking the running state:', result.status)
 
-        if(response.ok) {
+        if(result.status === 'Stopped') {
+          // The result.status takes the real running state, if it doesnt run anymore, set isRunning to false
           setIsBotRunning(false);  // Set isBotRunning to false if the bot is stopped successfully
           Swal.fire({
             icon: 'success',
@@ -146,6 +153,7 @@ const Dashboard = () => {
             title: 'Error Stopping Bot',
             text: result.message || 'Failed to stop the bot. Please try again.',
           });
+          setIsBotRunning(true);    // Keep it as true if the bot didn't stop
         }
         // setMessage(result.message);
       } catch (error) {
@@ -156,6 +164,7 @@ const Dashboard = () => {
           text: 'Failed to stop the bot. Please try again.',
         });
         // setMessage('Error stopping bot');
+        setIsBotRunning(true);  // Set isBotRunning to true in case of an error
       }
     };
 
