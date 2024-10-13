@@ -44,10 +44,18 @@ def fill_google_form(url, json_data):
     # PART 2: Assign field values based on the JSON data
     def assign_field_values(gform_field_id_lists):
         usm_email_pattern = re.compile(r'(usm|university).*email', re.IGNORECASE)
+        # Specifically made for ic and matric because ic exists within the matric
+        ic_pattern = re.compile(r'\bic\b', re.IGNORECASE)  # Looks for 'ic' as a whole word
+        matric_pattern = re.compile(r'\bmatric\b', re.IGNORECASE)  # Looks for 'matric' as a whole word
+        
         for entry in gform_field_id_lists:
             for json_key in json_data.keys():
                 if usm_email_pattern.search(entry["field_name"]):
                     entry["field_value"] = json_data['usm_email']
+                elif ic_pattern.search(entry["field_name"]):
+                    entry["field_value"] = json_data['ic']
+                elif matric_pattern.search(entry["field_name"]):
+                    entry["field_value"] = json_data['matric']
                 elif json_key.lower() in entry["field_name"].lower():
                     entry["field_value"] = json_data[json_key]
                     break
