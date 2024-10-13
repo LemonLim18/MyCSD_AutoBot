@@ -19,6 +19,31 @@ const Dashboard = () => {
     }
 
     useEffect( () => {
+      const checkBotStatus = async () => {
+        try {
+          console.log('Checking bot status...');  // Log bot status check action
+          const statusResponse = await fetch('http://127.0.0.1:5000/bot-status', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const statusResult = await statusResponse.json();
+          console.log("Bot status:", statusResult.status);
+          
+          if (statusResult.status === 'Operational') {
+            setIsBotRunning(true);
+          } else {
+            setIsBotRunning(false);
+          }
+        } catch (error) {
+          console.error('Error checking bot status:', error);
+          setIsBotRunning(false);  // Assume the bot is not running if there's an error
+        }
+      };
+
+      checkBotStatus();  // Check the bot status when the component mounts
+
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if(user) {
           // Get user's UID
@@ -92,12 +117,11 @@ const Dashboard = () => {
           },
           body: JSON.stringify({uid: currentUserUid}),
         });
-
         const result = await response.json();
         console.log('Response from start-bot:', result);  // Log response from start-bot
         console.log('Checking the running state:', result.status)
         // if(response.ok) {
-        if(result.status === 'Operational') {
+        if(response.ok && result.status === 'Operational') {
           // The result.status takes the real running state, if it doesnt run anymore, set isRunning to false
           setIsBotRunning(true);  // Set isBotRunning to true if the bot is started successfully
           Swal.fire({
@@ -105,6 +129,14 @@ const Dashboard = () => {
             title: 'Bot Started',
             text: result.message || 'The bot has been started successfully.',
           });
+        } else if (result.status === 'Operational' && result.run_before === true) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error Starting Bot',
+              text: result.message || 'Failed to start the bot. Please try again.',
+            });
+            setIsBotRunning(true);  // Telling that the bot runs before
+            console.error("Already Running?", isBotRunning)
         } else {
           Swal.fire({
             icon: 'error',

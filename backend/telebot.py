@@ -63,6 +63,11 @@ async def new_message_listener(event):
                     json_data = json.load(file)
                 fill_google_form(url, json_data)  # Fill the Google Form
                 print("\Google Form filled successfully! Waiting for the next form...")
+
+                # UNCOMMENT THIS TO PASS THE STATUS TO APP.PY
+                # Write the completion status to a file
+                # with open("bot_status.txt", "w") as status_file:
+                #     status_file.write("Google Form filled successfully! Waiting for the next form...")
         else:
             print("No Google Form URLs found in this message.")
 
